@@ -9,7 +9,9 @@ interface ProviderPageProps {
 }
 
 export default async function ProviderPage({ params }: ProviderPageProps) {
-  const provider = await getProviderBySlug(params.slug)
+  // asynchronous access of `params.slug`.
+  const { slug } = await params
+  const provider = await getProviderBySlug(slug)
 
   if (!provider) {
     notFound()
@@ -19,7 +21,9 @@ export default async function ProviderPage({ params }: ProviderPageProps) {
 }
 
 export async function generateMetadata({ params }: ProviderPageProps) {
-  const provider = await getProviderBySlug(params.slug)
+  // asynchronous access of `params.slug`.
+  const { slug } = await params
+  const provider = await getProviderBySlug(slug)
 
   if (!provider) {
     return {

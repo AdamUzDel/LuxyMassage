@@ -57,3 +57,13 @@ export async function getFeaturedProviders(): Promise<Provider[]> {
 
   return mockProviders.filter((provider) => provider.verified)
 }
+
+export async function getProvidersByLocation(city?: string, country?: string): Promise<Provider[]> {
+  // Simulate API delay
+  await new Promise((resolve) => setTimeout(resolve, 100))
+  console.log(city, country)
+
+  // In a real app, this would filter by location
+  // For now, return all providers
+  return mockProviders
+}
