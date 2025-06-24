@@ -11,10 +11,10 @@ export default function Footer() {
               <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
                 <span className="text-white font-bold text-sm">L</span>
               </div>
-              <span className="font-bold text-xl">LuxyDirectory</span>
+              <span className="font-bold text-xl">LuxyMassage</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Connecting you with verified professional service providers worldwide.
+              Connecting you with verified professional escorts worldwide.
             </p>
           </div>
 
@@ -23,13 +23,13 @@ export default function Footer() {
             <h3 className="font-semibold">Quick Links</h3>
             <div className="space-y-2 text-sm">
               <Link href="/browse" className="block hover:text-primary transition-colors">
-                Browse Providers
+                Browse Escorts
               </Link>
               <Link href="/categories" className="block hover:text-primary transition-colors">
                 Categories
               </Link>
               <Link href="/register" className="block hover:text-primary transition-colors">
-                Join as Provider
+                Join as Advertiser
               </Link>
             </div>
           </div>
@@ -68,7 +68,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} LuxyDirectory. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} LuxyMassage. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -11,12 +11,12 @@ import Footer from "@/components/layout/footer"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "LuxyDirectory - Premium Professional Services",
-  description: "Discover verified professional service providers worldwide. Connect with trusted experts in your area.",
-  keywords: "professional services, verified providers, global directory, premium services",
+  title: "LuxyMassage - Premium Professional Escort Services",
+  description: "Discover verified professional escorts worldwide. Connect with trusted experts in your area.",
+  keywords: "professional escort services, verified providers, global directory, premium services",
   openGraph: {
-    title: "LuxyDirectory - Premium Professional Services",
-    description: "Discover verified professional service providers worldwide",
+    title: "LuxyMassage - Premium Professional Escort Services",
+    description: "Discover verified professional escorts worldwide",
     type: "website",
   },
     generator: 'bytebasetech.com'
