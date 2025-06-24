@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,13 +17,17 @@ import {
   ChevronRight,
   Globe,
   Twitter,
+  ArrowLeft,
+  ArrowRight,
 } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import type { Provider } from "@/types/provider"
-import ContactModal from "@/components/provider/contact-modal"
-import ReviewsTab from "@/components/provider/reviews-tab"
-import QuestionsTab from "@/components/provider/questions-tab"
-import ReportModal from "@/components/provider/report-modal"
+import ContactModal from "./contact-modal"
+import ReviewsTab from "./reviews-tab"
+import QuestionsTab from "./questions-tab"
+import ReportModal from "./report-modal"
+import { getAdjacentProviders } from "@/lib/providers"
 
 interface ProviderProfileProps {
   provider: Provider
@@ -33,6 +37,19 @@ export default function ProviderProfile({ provider }: ProviderProfileProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [showContactModal, setShowContactModal] = useState(false)
   const [showReportModal, setShowReportModal] = useState(false)
+  const [adjacentProviders, setAdjacentProviders] = useState<{
+    previous: Provider | null
+    next: Provider | null
+  }>({ previous: null, next: null })
+
+  // Load adjacent providers
+  useEffect(() => {
+    const loadAdjacentProviders = async () => {
+      const adjacent = await getAdjacentProviders(provider.slug)
+      setAdjacentProviders(adjacent)
+    }
+    loadAdjacentProviders()
+  }, [provider.slug])
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev === provider.images.length - 1 ? 0 : prev + 1))
@@ -45,6 +62,37 @@ export default function ProviderProfile({ provider }: ProviderProfileProps) {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
+        {/* Navigation Header */}
+        <div className="flex items-center justify-between mb-6">
+          <Button variant="outline" asChild>
+            <Link href="/">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Providers
+            </Link>
+          </Button>
+
+          {/* Provider Navigation */}
+          <div className="flex items-center space-x-2">
+            {adjacentProviders.previous && (
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/provider/${adjacentProviders.previous.slug}`}>
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  <span className="hidden sm:inline">Previous</span>
+                </Link>
+              </Button>
+            )}
+
+            {adjacentProviders.next && (
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/provider/${adjacentProviders.next.slug}`}>
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Link>
+              </Button>
+            )}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Images and Basic Info */}
           <div className="lg:col-span-2 space-y-6">
@@ -242,16 +290,38 @@ export default function ProviderProfile({ provider }: ProviderProfileProps) {
               </CardContent>
             </Card>
 
-            {/* Navigation */}
-            <div className="flex justify-between">
-              <Button variant="outline">
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                Previous
-              </Button>
-              <Button variant="outline">
-                Next
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </Button>
+            {/* Adjacent Providers Navigation - Mobile */}
+            <div className="lg:hidden">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">More Providers</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {adjacentProviders.previous && (
+                    <Button variant="outline" className="w-full justify-start" asChild>
+                      <Link href={`/provider/${adjacentProviders.previous.slug}`}>
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        <div className="text-left">
+                          <div className="font-medium">{adjacentProviders.previous.name}</div>
+                          <div className="text-sm text-muted-foreground">{adjacentProviders.previous.category}</div>
+                        </div>
+                      </Link>
+                    </Button>
+                  )}
+
+                  {adjacentProviders.next && (
+                    <Button variant="outline" className="w-full justify-start" asChild>
+                      <Link href={`/provider/${adjacentProviders.next.slug}`}>
+                        <div className="text-left flex-1">
+                          <div className="font-medium">{adjacentProviders.next.name}</div>
+                          <div className="text-sm text-muted-foreground">{adjacentProviders.next.category}</div>
+                        </div>
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>

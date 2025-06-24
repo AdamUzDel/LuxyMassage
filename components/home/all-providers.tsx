@@ -250,7 +250,7 @@ export default function AllProviders() {
       </div>
 
       {/* Mobile Layout */}
-      <div className="block md:hidden space-y-6 mb-12">
+      <div className="block lg:hidden space-y-6 mb-12">
         {currentProviders.map((provider) => (
           <Card key={provider.id} className="overflow-hidden">
             <div className="flex">
@@ -307,7 +307,7 @@ export default function AllProviders() {
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden md:grid md:grid-cols-2 l:grid-cols-3 gap-8 mb-12">
+      <div className="hidden lg:grid lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
         {currentProviders.map((provider) => (
           <Card key={provider.id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden">
             {/* Image Gallery */}
