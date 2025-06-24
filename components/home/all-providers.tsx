@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Star, MapPin, CheckCircle, ChevronLeft, ChevronRight, Eye } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-// import { useLanguage } from "@/components/language-provider"
+import { useLanguage } from "@/components/language-provider"
 import { useLocation } from "@/hooks/use-location"
 import { LocationConsentBanner } from "@/components/ui/location-consent-banner"
 
@@ -209,7 +209,7 @@ const ITEMS_PER_PAGE = 8
 
 export default function AllProviders() {
   const [currentPage, setCurrentPage] = useState(1)
-  // const { t } = useLanguage()
+  const { t } = useLanguage()
   const { location, loading, hasConsent, requestLocationPermission, denyLocationPermission } = useLocation()
 
   const totalPages = Math.ceil(allProviders.length / ITEMS_PER_PAGE)
