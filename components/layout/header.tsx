@@ -12,6 +12,7 @@ import { LanguageSelector } from "@/components/language-selector"
 import { useLanguage } from "@/components/language-provider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MapPin } from "lucide-react"
+import { categories } from "@/types/provider"
 
 export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -20,26 +21,15 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("")
   const { t } = useLanguage()
 
-  const categories = [
-    "Beauty & Wellness",
-    "Fitness & Health",
-    "Business Services",
-    "Creative Services",
-    "Education & Training",
-    "Home Services",
-    "Technology",
-    "Legal Services",
-  ]
-
   const popularSearches = [
-    "Personal Trainer",
-    "Massage Therapist",
-    "Business Consultant",
-    "Web Designer",
-    "Life Coach",
-    "Yoga Instructor",
-    "Nutritionist",
-    "Marketing Expert",
+    "Massage",
+    "Fingering",
+    "COB - Come On Body",
+    "Oral sex - blowjob",
+    "Lap dancing",
+    "Couples",
+    "Nuru massage",
+    "Face sitting",
   ]
 
   return (
@@ -52,8 +42,12 @@ export default function Header() {
             <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
               <span className="text-white font-bold text-sm">L</span>
             </div>
-            <span className="font-bold text-lg sm:text-xl hidden xs:block">LuxyDirectory</span>
-            <span className="font-bold text-lg sm:text-xl xs:hidden">Luxy</span>
+            <span className="flex flex-col sm:flex-row items-start font-bold text-sm sm:text-xl">
+              <span>Luxy</span>
+              <span>Massage</span>
+            </span>
+            {/* <span className="font-bold text-lg sm:text-xl hidden xs:block">LuxyDirectory</span>
+            <span className="font-bold text-lg sm:text-xl xs:hidden">Luxy</span> */}
           </Link>
 
           {/* Desktop Navigation */}

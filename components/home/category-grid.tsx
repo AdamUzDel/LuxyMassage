@@ -4,24 +4,24 @@ import Link from "next/link"
 
 const categories = [
   {
-    name: "Beauty & Wellness",
+    name: "Female Escorts",
     icon: Heart,
     count: 1250,
     color: "bg-pink-100 text-pink-600 dark:bg-pink-900/20 dark:text-pink-400",
   },
   {
-    name: "Fitness & Health",
+    name: "Male Escorts",
     icon: Dumbbell,
     count: 890,
     color: "bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400",
   },
   {
-    name: "Business Services",
-    icon: Briefcase,
+    name: "Shemale Escorts",
+    icon: Scale,
     count: 2100,
     color: "bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400",
   },
-  {
+  /* {
     name: "Creative Services",
     icon: Palette,
     count: 750,
@@ -50,7 +50,7 @@ const categories = [
     icon: Scale,
     count: 420,
     color: "bg-gray-100 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400",
-  },
+  }, */
 ]
 
 export default function CategoryGrid() {

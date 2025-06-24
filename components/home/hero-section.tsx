@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, MapPin } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
+import { categories } from "@/types/provider"
 
 export default function HeroSection() {
   const [location, setLocation] = useState("")
@@ -13,26 +14,15 @@ export default function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("")
   const { t } = useLanguage()
 
-  const categories = [
-    "Beauty & Wellness",
-    "Fitness & Health",
-    "Business Services",
-    "Creative Services",
-    "Education & Training",
-    "Home Services",
-    "Technology",
-    "Legal Services",
-  ]
-
   return (
     <section className="relative bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-indigo-950/20">
-      <div className="container mx-auto px-4 py-12 lg:py-20">
+      <div className="container mx-auto px-4 py-6 lg:py-20">
         <div className="max-w-4xl mx-auto text-center">
           {/* Hero Text - Reduced spacing */}
-          <h1 className="text-3xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl lg:text-5xl font-bold mb-0 sm:mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             {t("heroTitle")}
           </h1>
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">{t("heroSubtitle")}</p>
+          {/* <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">{t("heroSubtitle")}</p> */}
 
           {/* Search Form - Desktop Only */}
           <div className="hidden lg:block bg-white dark:bg-card rounded-2xl shadow-xl p-6 border">
@@ -81,9 +71,9 @@ export default function HeroSection() {
           </div>
 
           {/* Mobile CTA */}
-          <div className="lg:hidden">
+          {/* <div className="lg:hidden">
             <p className="text-sm text-muted-foreground mb-4">Use the search in the header above to find providers</p>
-          </div>
+          </div> */}
         </div>
       </div>
 

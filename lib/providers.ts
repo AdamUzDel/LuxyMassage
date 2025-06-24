@@ -1,7 +1,7 @@
 import type { Provider } from "@/types/provider"
 
 // Complete mock data with all providers
-const mockProviders: Provider[] = [
+export const mockProviders: Provider[] = [
   {
     id: "1",
     name: "Sarah Johnson",
@@ -15,11 +15,11 @@ const mockProviders: Provider[] = [
     questionCount: 23,
     verified: true,
     images: [
-      "/placeholder.svg?height=600&width=800",
-      "/placeholder.svg?height=600&width=800",
-      "/placeholder.svg?height=600&width=800",
+      "/000.jpg?height=600&width=800",
+      "/002.jpg?height=600&width=800",
+      "/003.jpg?height=600&width=800",
     ],
-    avatar: "/placeholder.svg?height=200&width=200",
+    avatar: "/000.jpg?height=200&width=200",
     rate: {
       local: "$80/hour",
       usd: "$80/hour",
@@ -54,8 +54,8 @@ const mockProviders: Provider[] = [
     reviewCount: 89,
     questionCount: 15,
     verified: true,
-    images: ["/placeholder.svg?height=600&width=800", "/placeholder.svg?height=600&width=800"],
-    avatar: "/placeholder.svg?height=200&width=200",
+    images: ["/004.jpg?height=600&width=800", "/005.jpg?height=600&width=800"],
+    avatar: "/004.jpg?height=200&width=200",
     rate: {
       local: "AED 440/hour",
       usd: "$120/hour",
@@ -91,12 +91,12 @@ const mockProviders: Provider[] = [
     questionCount: 28,
     verified: true,
     images: [
-      "/placeholder.svg?height=600&width=800",
-      "/placeholder.svg?height=600&width=800",
-      "/placeholder.svg?height=600&width=800",
-      "/placeholder.svg?height=600&width=800",
+      "/006.jpg?height=600&width=800",
+      "/007.jpg?height=600&width=800",
+      "/008.jpg?height=600&width=800",
+      "/009.jpg?height=600&width=800",
     ],
-    avatar: "/placeholder.svg?height=200&width=200",
+    avatar: "/006.jpg?height=200&width=200",
     rate: {
       local: "€90/hour",
       usd: "$90/hour",
@@ -128,8 +128,8 @@ const mockProviders: Provider[] = [
     reviewCount: 203,
     questionCount: 31,
     verified: true,
-    images: ["/placeholder.svg?height=600&width=800", "/placeholder.svg?height=600&width=800"],
-    avatar: "/placeholder.svg?height=200&width=200",
+    images: ["/010.jpg?height=600&width=800", "/011.jpg?height=600&width=800"],
+    avatar: "/010.jpg?height=200&width=200",
     rate: {
       local: "S$75/hour",
       usd: "$75/hour",
@@ -164,8 +164,8 @@ const mockProviders: Provider[] = [
     reviewCount: 94,
     questionCount: 18,
     verified: true,
-    images: ["/placeholder.svg?height=600&width=800"],
-    avatar: "/placeholder.svg?height=200&width=200",
+    images: ["/012.jpg?height=600&width=800"],
+    avatar: "/012.jpg?height=200&width=200",
     rate: {
       local: "£100/hour",
       usd: "$100/hour",
@@ -198,11 +198,11 @@ const mockProviders: Provider[] = [
     questionCount: 25,
     verified: true,
     images: [
-      "/placeholder.svg?height=600&width=800",
-      "/placeholder.svg?height=600&width=800",
-      "/placeholder.svg?height=600&width=800",
+      "/013.jpg?height=600&width=800",
+      "/014.jpg?height=600&width=800",
+      "/015.jpg?height=600&width=800",
     ],
-    avatar: "/placeholder.svg?height=200&width=200",
+    avatar: "/013.jpg?height=200&width=200",
     rate: {
       local: "₹3,300/hour",
       usd: "$45/hour",
@@ -234,8 +234,8 @@ const mockProviders: Provider[] = [
     reviewCount: 112,
     questionCount: 22,
     verified: true,
-    images: ["/placeholder.svg?height=600&width=800", "/placeholder.svg?height=600&width=800"],
-    avatar: "/placeholder.svg?height=200&width=200",
+    images: ["/016.jpg?height=600&width=800", "/017.jpg?height=600&width=800"],
+    avatar: "/016.jpg?height=200&width=200",
     rate: {
       local: "€85/hour",
       usd: "$85/hour",
@@ -270,8 +270,8 @@ const mockProviders: Provider[] = [
     reviewCount: 67,
     questionCount: 12,
     verified: true,
-    images: ["/placeholder.svg?height=600&width=800"],
-    avatar: "/placeholder.svg?height=200&width=200",
+    images: ["/018.jpg?height=600&width=800"],
+    avatar: "/018.jpg?height=200&width=200",
     rate: {
       local: "₩110,000/hour",
       usd: "$110/hour",
@@ -307,11 +307,11 @@ const mockProviders: Provider[] = [
     questionCount: 19,
     verified: true,
     images: [
-      "/placeholder.svg?height=600&width=800",
-      "/placeholder.svg?height=600&width=800",
-      "/placeholder.svg?height=600&width=800",
+      "/019.jpg?height=600&width=800",
+      "/020.jpg?height=600&width=800",
+      "/020.jpg?height=600&width=800",
     ],
-    avatar: "/placeholder.svg?height=200&width=200",
+    avatar: "/019.jpg?height=200&width=200",
     rate: {
       local: "$1,900/hour",
       usd: "$95/hour",

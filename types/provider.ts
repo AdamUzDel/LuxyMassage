@@ -57,3 +57,19 @@ export interface Question {
   answeredAt?: string
   createdAt: string
 }
+
+export const categories = [
+  "Anal Sex",
+  "BDSM",
+  "CIM - Come In Mouth",
+  "COB - Come On Body",
+  "Couples",
+  "Deep throat",
+  "Domination",
+  "Face sitting",
+  "Fingering",
+  "Fisting",
+  "Foot fetish",
+  "French kissing",
+  "GFE",
+]

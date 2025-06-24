@@ -10,6 +10,7 @@ import Link from "next/link"
 import { useLanguage } from "@/components/language-provider"
 import { useLocation } from "@/hooks/use-location"
 import { LocationConsentBanner } from "@/components/ui/location-consent-banner"
+import { mockProviders } from "@/lib/providers"
 
 // Extended mock data with more providers
 const allProviders = [
@@ -212,10 +213,10 @@ export default function AllProviders() {
   const { t } = useLanguage()
   const { location, loading, hasConsent, requestLocationPermission, denyLocationPermission } = useLocation()
 
-  const totalPages = Math.ceil(allProviders.length / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(mockProviders.length / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const endIndex = startIndex + ITEMS_PER_PAGE
-  const currentProviders = allProviders.slice(startIndex, endIndex)
+  const currentProviders = mockProviders.slice(startIndex, endIndex)
 
   const goToPage = (page: number) => {
     setCurrentPage(page)
@@ -223,11 +224,11 @@ export default function AllProviders() {
   }
 
   const getLocationTitle = () => {
-    if (loading) return "Finding providers near you..."
+    if (loading) return "Finding escorts near you..."
     if (location) {
-      return `Providers in ${location.city}, ${location.country}`
+      return `Escorts in ${location.city}, ${location.country}`
     }
-    return "Providers Worldwide"
+    return "Escorts Worldwide"
   }
 
   const truncateText = (text: string, maxLength: number) => {
@@ -236,16 +237,16 @@ export default function AllProviders() {
   }
 
   return (
-    <section className="py-16">
-      <div className="text-center mb-12">
+    <section className="pt-0 pb-8">
+      <div className="text-center mb-8 sm:mb-12">
         <h2 className="text-3xl lg:text-4xl font-bold mb-4">{getLocationTitle()}</h2>
-        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+        {/* <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
           {location
             ? `Browse verified professional service providers in your area`
             : `Browse through our complete directory of verified professional service providers`}
-        </p>
+        </p> */}
         <p className="text-sm text-muted-foreground mt-2">
-          Showing {startIndex + 1}-{Math.min(endIndex, allProviders.length)} of {allProviders.length} providers
+          Showing {startIndex + 1}-{Math.min(endIndex, mockProviders.length)} of {mockProviders.length} escorts
         </p>
       </div>
 
@@ -256,7 +257,7 @@ export default function AllProviders() {
             <div className="flex">
               {/* Image Section */}
               <div className="relative w-32 h-32 flex-shrink-0">
-                <Image src={provider.image || "/placeholder.svg"} alt={provider.name} fill className="object-cover" />
+                <Image src={provider.avatar || "/placeholder.svg"} alt={provider.name} fill className="object-cover" />
                 {provider.verified && (
                   <Badge className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-xs">
                     <CheckCircle className="w-2 h-2 mr-1" />
@@ -281,7 +282,7 @@ export default function AllProviders() {
                     <div className="flex items-center space-x-1">
                       <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                       <span className="text-sm font-medium">{provider.rating}</span>
-                      <span className="text-xs text-muted-foreground">({provider.reviews} reviews)</span>
+                      <span className="text-xs text-muted-foreground">({provider.reviewCount} reviews)</span>
                     </div>
                   </div>
 
@@ -313,7 +314,7 @@ export default function AllProviders() {
             {/* Image Gallery */}
             <div className="relative h-64">
               <Image
-                src={provider.image || "/placeholder.svg"}
+                src={provider.avatar || "/placeholder.svg"}
                 alt={provider.name}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -330,7 +331,7 @@ export default function AllProviders() {
                 </div>
               )}
               <div className="absolute top-3 left-3 bg-black/70 text-white text-sm px-3 py-1 rounded-full font-semibold">
-                {provider.price}
+                {provider.rate.usd}
               </div>
             </div>
 
@@ -344,7 +345,7 @@ export default function AllProviders() {
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                       <span className="font-medium">{provider.rating}</span>
-                      <span className="text-sm text-muted-foreground">({provider.reviews} reviews)</span>
+                      <span className="text-sm text-muted-foreground">({provider.reviewCount} reviews)</span>
                     </div>
                   </div>
                 </div>

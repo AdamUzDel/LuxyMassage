@@ -12,22 +12,22 @@ interface LanguageContextType {
 
 const translations = {
   en: {
-    heroTitle: "Discover Premium Professional Services",
-    heroSubtitle: "Connect with verified service providers worldwide. Find trusted experts in your area.",
+    heroTitle: "Discover Premium Professional Escort Services",
+    heroSubtitle: "Connect with verified escorts worldwide. Find trusted experts in your area.",
     searchServices: "Search for services...",
     location: "Location",
     category: "Category",
     searchButton: "Search",
     popularSearches: "Popular searches",
-    featuredProviders: "Featured Providers",
-    featuredProvidersSubtitle: "Discover our top-rated and verified professional service providers",
-    viewAllProviders: "View All Providers",
+    featuredProviders: "Featured Escorts",
+    featuredProvidersSubtitle: "Discover our top-rated and verified professional escorts",
+    viewAllProviders: "View All Escorts",
     browse: "Browse",
     categories: "Categories",
     about: "About",
     signIn: "Sign In",
-    joinAsProvider: "Join as Provider",
-    searchPlaceholder: "Search services, providers, or locations...",
+    joinAsProvider: "Join as Escort",
+    searchPlaceholder: "Search services, escorts, or locations...",
   },
   th: {
     heroTitle: "ค้นพบบริการมืออาชีพระดับพรีเมียม",
@@ -85,7 +85,7 @@ const translations = {
   },
   sw: {
     heroTitle: "Gundua Huduma za Kitaalamu za Hali ya Juu",
-    heroTitle: "Unganisha na watoa huduma walioidhinishwa ulimwenguni. Tafuta wataalamu wanaoaminika katika eneo lako.",
+    // heroTitle: "Unganisha na watoa huduma walioidhinishwa ulimwenguni. Tafuta wataalamu wanaoaminika katika eneo lako.",
     searchServices: "Tafuta huduma...",
     location: "Mahali",
     category: "Jamii",
