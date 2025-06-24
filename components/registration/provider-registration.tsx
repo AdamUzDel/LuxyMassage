@@ -150,7 +150,7 @@ export default function ProviderRegistration() {
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">Provider Registration</h2>
+          <h2 className="text-2xl font-bold">Escort Registration</h2>
           <span className="text-sm text-muted-foreground">
             Step {currentStep} of {steps.length}
           </span>

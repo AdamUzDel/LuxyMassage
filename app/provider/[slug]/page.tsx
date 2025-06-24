@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: ProviderPageProps) {
   }
 
   return {
-    title: `${provider.name} - ${provider.category} | LuxyDirectory`,
+    title: `${provider.name} - ${provider.category} | LuxyMassage`,
     description: provider.bio,
     openGraph: {
       title: `${provider.name} - Professional ${provider.category}`,
