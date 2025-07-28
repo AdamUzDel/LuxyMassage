@@ -448,10 +448,9 @@ export default function ProviderRegistration() {
 
                 <div>
                   <Label htmlFor="height">Height</Label>
-                  <Input {...register("height")} placeholder="e.g., 5'8\"" />\
+                  <Input {...register("height")} placeholder="e.g., 5'8" />
                 </div>
-\
-                <div>\
+                <div>
                   <Label htmlFor="hairColor">Hair Color</Label>
                   <Input {...register("hairColor")} placeholder="e.g., Brown, Blonde" />
                 </div>
@@ -584,5 +583,5 @@ export default function ProviderRegistration() {
         </Card>
       </form>
     </div>
-  )\
+  )
 }
