@@ -4,14 +4,15 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Menu } from "lucide-react"
+import { Search, Menu, User } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSelector } from "@/components/language-selector"
 import { useLanguage } from "@/components/language-provider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MapPin } from "lucide-react"
-import UserMenu from "./user-menu"
+import { categories } from "@/types/provider"
 
 export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -20,26 +21,15 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("")
   const { t } = useLanguage()
 
-  const categories = [
-    "Beauty & Wellness",
-    "Fitness & Health",
-    "Business Services",
-    "Creative Services",
-    "Education & Training",
-    "Home Services",
-    "Technology",
-    "Legal Services",
-  ]
-
   const popularSearches = [
-    "Personal Trainer",
-    "Massage Therapist",
-    "Business Consultant",
-    "Web Designer",
-    "Life Coach",
-    "Yoga Instructor",
-    "Nutritionist",
-    "Marketing Expert",
+    "Massage",
+    "Fingering",
+    "COB - Come On Body",
+    "Oral sex - blowjob",
+    "Lap dancing",
+    "Couples",
+    "Nuru massage",
+    "Face sitting",
   ]
 
   return (
@@ -52,8 +42,12 @@ export default function Header() {
             <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
               <span className="text-white font-bold text-sm">L</span>
             </div>
-            <span className="font-bold text-lg sm:text-xl hidden xs:block">LuxyDirectory</span>
-            <span className="font-bold text-lg sm:text-xl xs:hidden">Luxy</span>
+            <span className="flex flex-col sm:flex-row items-start font-bold text-sm sm:text-xl">
+              <span>Luxy</span>
+              <span>Massage</span>
+            </span>
+            {/* <span className="font-bold text-lg sm:text-xl hidden xs:block">LuxyDirectory</span>
+            <span className="font-bold text-lg sm:text-xl xs:hidden">Luxy</span> */}
           </Link>
 
           {/* Desktop Navigation */}
@@ -93,7 +87,24 @@ export default function Header() {
             <ThemeToggle />
 
             {/* User Menu */}
-            <UserMenu />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <User className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href="/login">{t("signIn")}</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/register?type=user">Sign up as User</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/register?type=provider">{t("joinAsProvider")}</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Mobile Menu */}
             <Sheet>
@@ -132,12 +143,7 @@ export default function Header() {
           </div>
           <div className="flex space-x-2 overflow-x-auto horizontal-scroll pb-1">
             {popularSearches.map((term) => (
-              <Button
-                key={term}
-                variant="outline"
-                size="sm"
-                className="rounded-full whitespace-nowrap flex-shrink-0 bg-transparent"
-              >
+              <Button key={term} variant="outline" size="sm" className="rounded-full whitespace-nowrap flex-shrink-0">
                 {term}
               </Button>
             ))}

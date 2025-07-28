@@ -16,12 +16,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
 import { Upload, X, CheckCircle } from "lucide-react"
 import Image from "next/image"
-import { createClient } from "@/lib/supabase/client"
-import { storageService } from "@/lib/storage"
-import { compressImage, validateImageFile } from "@/lib/image-compression"
-import { useAuth } from "@/components/auth/auth-provider"
-import { useRouter } from "next/navigation"
-import { Loader2 } from "lucide-react"
 
 const providerSchema = z.object({
   // Personal Information
@@ -72,13 +66,7 @@ const steps = [
 
 export default function ProviderRegistration() {
   const [currentStep, setCurrentStep] = useState(1)
-  const [uploadedImages, setUploadedImages] = useState<File[]>([])
-  const [imageUrls, setImageUrls] = useState<string[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  
-  const { user } = useAuth()
-  const router = useRouter()
-  const supabase = createClient()
+  const [uploadedImages, setUploadedImages] = useState<string[]>([])
   
   const {
     register,
@@ -131,114 +119,30 @@ export default function ProviderRegistration() {
     }
   }
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files && uploadedImages.length < 4) {
-      const newFiles = Array.from(files).slice(0, 4 - uploadedImages.length)
-      
-      try {
-        // Validate and compress images
-        const validatedFiles = newFiles.filter(file => {
-          try {
-            validateImageFile(file)
-            return true
-          } catch (error) {
-            console.error("Invalid file:", error)
-            return false
+      const newImages = Array.from(files).slice(0, 4 - uploadedImages.length)
+      newImages.forEach(file => {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            setUploadedImages(prev => [...prev, e.target!.result as string])
           }
-        })
-
-        const compressedFiles = await Promise.all(
-          validatedFiles.map(file => compressImage(file))
-        )
-
-        // Create preview URLs
-        const newImageUrls = compressedFiles.map(file => URL.createObjectURL(file))
-        
-        setUploadedImages(prev => [...prev, ...compressedFiles])
-        setImageUrls(prev => [...prev, ...newImageUrls])
-      } catch (error) {
-        console.error("Image processing error:", error)
-      }
+        }
+        reader.readAsDataURL(file)
+      })
     }
   }
 
   const removeImage = (index: number) => {
     setUploadedImages(prev => prev.filter((_, i) => i !== index))
-    setImageUrls(prev => prev.filter((_, i) => i !== index))
   }
 
-  const onSubmit = async (data: ProviderFormData) => {
-    if (!user) {
-      console.error("User not authenticated")
-      return
-    }
-
-    setIsSubmitting(true)
-    
-    try {
-      // Generate slug from name
-      const slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-      
-      // Insert provider data
-      const { data: provider, error: providerError } = await supabase
-        .from("providers")
-        .insert({
-          user_id: user.id,
-          slug: `${slug}-${Date.now()}`, // Ensure uniqueness
-          category: data.category,
-          bio: data.bio,
-          experience_years: data.experience,
-          languages: data.languages,
-          city: data.city,
-          country: data.country,
-          hourly_rate: data.hourlyRate,
-          currency: data.currency,
-          age: data.age,
-          height: data.height,
-          hair_color: data.hairColor,
-          nationality: data.nationality,
-          gender: data.gender,
-          smoker: data.smoker,
-          whatsapp: data.whatsapp,
-          phone: data.phone,
-          twitter: data.twitter,
-          status: 'pending' // Default status
-        })
-        .select()
-        .single()
-
-      if (providerError) throw providerError
-
-      // Upload images if any
-      if (uploadedImages.length > 0 && provider) {
-        for (let i = 0; i < uploadedImages.length; i++) {
-          try {
-            await storageService.uploadProviderImage(
-              provider.id, 
-              uploadedImages[i], 
-              i === 0 // First image is primary
-            )
-          } catch (imageError) {
-            console.error("Image upload error:", imageError)
-          }
-        }
-      }
-
-      // Update user role to provider
-      await supabase
-        .from("users")
-        .update({ role: "provider" })
-        .eq("id", user.id)
-
-      // Redirect to profile
-      router.push("/profile")
-      
-    } catch (error) {
-      console.error("Registration error:", error)
-    } finally {
-      setIsSubmitting(false)
-    }
+  const onSubmit = (data: ProviderFormData) => {
+    console.log("Form submitted:", data)
+    console.log("Uploaded images:", uploadedImages)
+    // Handle form submission
   }
 
   return (
@@ -246,7 +150,7 @@ export default function ProviderRegistration() {
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">Provider Registration</h2>
+          <h2 className="text-2xl font-bold">Escort Registration</h2>
           <span className="text-sm text-muted-foreground">
             Step {currentStep} of {steps.length}
           </span>
@@ -313,7 +217,7 @@ export default function ProviderRegistration() {
 
                 <div>
                   <Label htmlFor="gender">Gender *</Label>
-                  <Select onValueChange={(value) => setValue("gender", value as any)}>
+                  <Select onValueChange={(value: "male" | "female" | "other") => setValue("gender", value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
@@ -448,7 +352,7 @@ export default function ProviderRegistration() {
 
                 <div>
                   <Label htmlFor="height">Height</Label>
-                  <Input {...register("height")} placeholder="e.g., 5'8\"" />\
+                  <Input {...register("height")} placeholder="e.g., 5'8\" />
                 </div>
 \
                 <div>\
@@ -476,7 +380,7 @@ export default function ProviderRegistration() {
                   </p>
                   
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    {imageUrls.map((image, index) => (
+                    {uploadedImages.map((image, index) => (
                       <div key={index} className="relative group">
                         <Image
                           src={image || "/placeholder.svg"}
@@ -564,19 +468,12 @@ export default function ProviderRegistration() {
               </Button>
               
               {currentStep < steps.length ? (
-                <Button type="button" onClick={nextStep} disabled={isSubmitting}>
+                <Button type="button" onClick={nextStep}>
                   Next
                 </Button>
               ) : (
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Completing Registration...
-                    </>
-                  ) : (
-                    "Complete Registration"
-                  )}
+                <Button type="submit">
+                  Complete Registration
                 </Button>
               )}
             </div>
@@ -584,5 +481,5 @@ export default function ProviderRegistration() {
         </Card>
       </form>
     </div>
-  )\
+  )
 }

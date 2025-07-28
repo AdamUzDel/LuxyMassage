@@ -83,7 +83,7 @@ export class AuthService {
   }
 
   onAuthStateChange(callback: (user: User | null) => void) {
-    return this.supabase.auth.onAuthStateChange((event: any, session: { user: any }) => {
+    return this.supabase.auth.onAuthStateChange((/* event: any, */ session: { user: any }) => {
       callback(session?.user ?? null)
     })
   }
