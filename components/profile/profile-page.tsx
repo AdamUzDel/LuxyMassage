@@ -13,6 +13,7 @@ import { User, Briefcase, MapPin, Phone, Mail, Edit, Star, CheckCircle, CreditCa
 import type { User as SupabaseUser } from "@supabase/auth-helpers-nextjs"
 import ProfileEditForm from "./profile-edit-form"
 import ProviderProfileEdit from "./provider-profile-edit"
+import ImageGalleryManager from "./image-gallery-manager"
 
 interface ProfilePageProps {
   user: SupabaseUser
@@ -35,6 +36,11 @@ export default function ProfilePage({ user, userProfile, providerProfile }: Prof
       .map((n) => n[0])
       .join("")
       .toUpperCase()
+  }
+
+  const handleImagesChange = () => {
+    // Refresh the page to show updated images
+    router.refresh()
   }
 
   return (
@@ -106,7 +112,7 @@ export default function ProfilePage({ user, userProfile, providerProfile }: Prof
                   Edit Profile
                 </Button>
 
-                {isProvider && (
+                {isProvider && providerProfile && (
                   <Button asChild>
                     <a href={`/provider/${providerProfile?.slug}`}>
                       <User className="w-4 h-4 mr-2" />
@@ -244,6 +250,11 @@ export default function ProfilePage({ user, userProfile, providerProfile }: Prof
                   )}
                 </CardContent>
               </Card>
+
+              {/* Image Gallery Manager */}
+              {providerProfile && (
+                <ImageGalleryManager providerId={providerProfile.id} onImagesChange={handleImagesChange} />
+              )}
 
               {/* Verification Status */}
               {providerProfile && (

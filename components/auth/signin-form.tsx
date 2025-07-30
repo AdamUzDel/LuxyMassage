@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
-import { trackRegistration } from "@/lib/analytics"
+import Link from "next/link"
 
 // Validation schema for signin form
 const signinSchema = z.object({
@@ -28,7 +28,14 @@ export default function SignInForm() {
   const [isLoading, setIsLoading] = useState(false)
 
   const router = useRouter()
-  const { signIn } = useAuth()
+  const { signIn, user } = useAuth()
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      router.push("/profile")
+    }
+  }, [user, router])
 
   const {
     register,
@@ -43,21 +50,28 @@ export default function SignInForm() {
     setError(null)
 
     try {
-      // Sign in user using auth context
       await signIn(data.email, data.password)
-
-      // Track successful signin
-      trackRegistration("user") // We'll update this to track signin specifically
-
-      // Redirect to profile or home page
       router.push("/profile")
       router.refresh()
     } catch (err: any) {
       console.error("Signin error:", err)
-      setError(err.message || "Failed to sign in. Please check your credentials.")
+
+      // Handle specific error messages
+      if (err.message?.includes("Email not confirmed")) {
+        setError("Please check your email and confirm your account before signing in.")
+      } else if (err.message?.includes("Invalid login credentials")) {
+        setError("Invalid email or password. Please check your credentials and try again.")
+      } else {
+        setError(err.message || "Failed to sign in. Please check your credentials.")
+      }
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Don't render if user is already authenticated
+  if (user) {
+    return null
   }
 
   return (
@@ -104,6 +118,13 @@ export default function SignInForm() {
               </Button>
             </div>
             {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
+          </div>
+
+          {/* Forgot Password Link */}
+          <div className="text-right">
+            <Link href="/auth/forgot-password" className="text-sm text-primary hover:underline">
+              Forgot your password?
+            </Link>
           </div>
 
           {/* Submit Button */}

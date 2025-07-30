@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -11,9 +11,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Eye, EyeOff, Loader2, User, Briefcase } from "lucide-react"
+import { Eye, EyeOff, Loader2, User, Briefcase, Mail } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
-import { trackRegistration } from "@/lib/analytics"
 
 // Validation schema for signup form
 const signupSchema = z
@@ -45,11 +44,18 @@ export default function SignUpForm() {
 
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { signUp } = useAuth()
+  const { signUp, user } = useAuth()
 
   // Get user type from URL params or default to 'user'
   const defaultUserType = searchParams.get("type") === "provider" ? "provider" : "user"
   const [userType, setUserType] = useState<"user" | "provider">(defaultUserType)
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      router.push("/profile")
+    }
+  }, [user, router])
 
   const {
     register,
@@ -64,7 +70,6 @@ export default function SignUpForm() {
     setError(null)
 
     try {
-      // Sign up user using auth context
       await signUp({
         email: data.email,
         password: data.password,
@@ -73,28 +78,18 @@ export default function SignUpForm() {
         phone: data.phone,
       })
 
-      // Track successful signup
-      trackRegistration(userType)
-
       setSuccess(true)
-
-      // For providers, redirect to registration form after a short delay
-      if (userType === "provider") {
-        setTimeout(() => {
-          router.push("/register")
-        }, 2000)
-      } else {
-        // For regular users, redirect to profile
-        setTimeout(() => {
-          router.push("/profile")
-        }, 2000)
-      }
     } catch (err: any) {
       console.error("Signup error:", err)
       setError(err.message || "Failed to create account. Please try again.")
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Don't render if user is already authenticated
+  if (user) {
+    return null
   }
 
   // Show success message after signup
@@ -104,16 +99,23 @@ export default function SignUpForm() {
         <CardContent className="pt-6">
           <div className="text-center space-y-4">
             <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto">
-              <User className="w-8 h-8 text-green-600 dark:text-green-400" />
+              <Mail className="w-8 h-8 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold">Account Created Successfully!</h3>
+              <h3 className="text-lg font-semibold">Check Your Email!</h3>
               <p className="text-muted-foreground mt-2">
-                {userType === "provider"
-                  ? "Please check your email to verify your account. You'll be redirected to complete your provider profile."
-                  : "Please check your email to verify your account. You'll be redirected to your profile."}
+                We've sent a confirmation email to your inbox. Please click the link in the email to verify your account
+                before signing in.
               </p>
+              {userType === "provider" && (
+                <p className="text-sm text-primary mt-2">
+                  After confirming your email, you can complete your provider registration.
+                </p>
+              )}
             </div>
+            <Button asChild className="w-full">
+              <a href="/auth/signin">Go to Sign In</a>
+            </Button>
           </div>
         </CardContent>
       </Card>

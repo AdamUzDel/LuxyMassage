@@ -22,6 +22,8 @@ import { compressImage, validateImageFile } from "@/lib/image-compression"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
+import { countries } from "@/lib/countries"
+import TermsModal from "@/components/auth/terms-modal"
 
 const providerSchema = z.object({
   // Personal Information
@@ -30,7 +32,7 @@ const providerSchema = z.object({
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   age: z.number().min(18, "Must be at least 18 years old"),
   gender: z.enum(["male", "female", "other"]),
-  nationality: z.string().min(2, "Nationality is required"),
+  nationality: z.string().min(1, "Nationality is required"),
 
   // Service Information
   category: z.string().min(1, "Category is required"),
@@ -40,7 +42,7 @@ const providerSchema = z.object({
 
   // Location & Contact
   city: z.string().min(2, "City is required"),
-  country: z.string().min(2, "Country is required"),
+  country: z.string().min(1, "Country is required"),
   whatsapp: z.string().optional(),
 
   // Pricing
@@ -75,6 +77,7 @@ export default function ProviderRegistration() {
   const [uploadedImages, setUploadedImages] = useState<File[]>([])
   const [imageUrls, setImageUrls] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showTermsModal, setShowTermsModal] = useState(false)
   
   const { user } = useAuth()
   const router = useRouter()
@@ -94,6 +97,8 @@ export default function ProviderRegistration() {
       wantVerification: false,
       agreeToTerms: false,
       languages: [],
+      // Pre-fill with user data if available
+      email: user?.email || "",
     },
   })
 
@@ -149,7 +154,12 @@ export default function ProviderRegistration() {
         })
 
         const compressedFiles = await Promise.all(
-          validatedFiles.map(file => compressImage(file))
+          validatedFiles.map(file => compressImage(file, {
+            maxSizeMB: 0.01, // 10KB
+            maxWidthOrHeight: 1920,
+            useWebWorker: true,
+            fileType: "image/jpeg",
+          }))
         )
 
         // Create preview URLs
@@ -164,6 +174,9 @@ export default function ProviderRegistration() {
   }
 
   const removeImage = (index: number) => {
+    // Revoke the object URL to prevent memory leaks
+    URL.revokeObjectURL(imageUrls[index])
+    
     setUploadedImages(prev => prev.filter((_, i) => i !== index))
     setImageUrls(prev => prev.filter((_, i) => i !== index))
   }
@@ -179,6 +192,8 @@ export default function ProviderRegistration() {
     try {
       // Generate slug from name
       const slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+      
+      console.log("Creating provider with data:", data)
       
       // Insert provider data
       const { data: provider, error: providerError } = await supabase
@@ -208,28 +223,43 @@ export default function ProviderRegistration() {
         .select()
         .single()
 
-      if (providerError) throw providerError
+      if (providerError) {
+        console.error("Provider creation error:", providerError)
+        throw providerError
+      }
+
+      console.log("Provider created:", provider)
 
       // Upload images if any
       if (uploadedImages.length > 0 && provider) {
+        console.log("Uploading", uploadedImages.length, "images")
+        
         for (let i = 0; i < uploadedImages.length; i++) {
           try {
+            console.log(`Uploading image ${i + 1}/${uploadedImages.length}`)
             await storageService.uploadProviderImage(
               provider.id, 
               uploadedImages[i], 
               i === 0 // First image is primary
             )
+            console.log(`Image ${i + 1} uploaded successfully`)
           } catch (imageError) {
-            console.error("Image upload error:", imageError)
+            console.error(`Image ${i + 1} upload error:`, imageError)
           }
         }
       }
 
       // Update user role to provider
-      await supabase
+      const { error: userUpdateError } = await supabase
         .from("users")
         .update({ role: "provider" })
         .eq("id", user.id)
+
+      if (userUpdateError) {
+        console.error("User role update error:", userUpdateError)
+      }
+
+      console.log("Registration completed successfully")
 
       // Redirect to profile
       router.push("/profile")
@@ -295,7 +325,7 @@ export default function ProviderRegistration() {
 
                 <div>
                   <Label htmlFor="email">Email Address *</Label>
-                  <Input {...register("email")} type="email" placeholder="your@email.com" />
+                  <Input {...register("email")} type="email" placeholder="your@email.com" disabled />
                   {errors.email && <p className="text-sm text-destructive mt-1">{errors.email.message}</p>}
                 </div>
 
@@ -328,7 +358,18 @@ export default function ProviderRegistration() {
 
                 <div>
                   <Label htmlFor="nationality">Nationality *</Label>
-                  <Input {...register("nationality")} placeholder="e.g., American, British" />
+                  <Select onValueChange={(value) => setValue("nationality", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select nationality" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countries.map((country) => (
+                        <SelectItem key={country.code} value={country.name}>
+                          {country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {errors.nationality && <p className="text-sm text-destructive mt-1">{errors.nationality.message}</p>}
                 </div>
               </div>
@@ -409,7 +450,18 @@ export default function ProviderRegistration() {
 
                 <div>
                   <Label htmlFor="country">Country *</Label>
-                  <Input {...register("country")} placeholder="e.g., United States" />
+                  <Select onValueChange={(value) => setValue("country", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countries.map((country) => (
+                        <SelectItem key={country.code} value={country.name}>
+                          {country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {errors.country && <p className="text-sm text-destructive mt-1">{errors.country.message}</p>}
                 </div>
 
@@ -450,6 +502,7 @@ export default function ProviderRegistration() {
                   <Label htmlFor="height">Height</Label>
                   <Input {...register("height")} placeholder="e.g., 5'8" />
                 </div>
+
                 <div>
                   <Label htmlFor="hairColor">Hair Color</Label>
                   <Input {...register("hairColor")} placeholder="e.g., Brown, Blonde" />
@@ -471,7 +524,7 @@ export default function ProviderRegistration() {
                 <div>
                   <Label>Portfolio Images (Max 4)</Label>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Upload up to 4 professional images that showcase your work or services.
+                    Upload up to 4 professional images that showcase your work or services. Images will be automatically compressed to 10KB for optimal performance.
                   </p>
                   
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -523,8 +576,19 @@ export default function ProviderRegistration() {
                     onCheckedChange={(checked) => setValue("agreeToTerms", checked as boolean)}
                   />
                   <Label htmlFor="agreeToTerms">
-                    I agree to the <a href="/terms" className="text-primary hover:underline">Terms of Service</a> and{" "}
-                    <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a> *
+                    I agree to the{" "}
+                    <button
+                      type="button"
+                      onClick={() => setShowTermsModal(true)}
+                      className="text-primary hover:underline"
+                    >
+                      Terms of Service
+                    </button>{" "}
+                    and{" "}
+                    <a href="/privacy" className="text-primary hover:underline">
+                      Privacy Policy
+                    </a>{" "}
+                    *
                   </Label>
                 </div>
                 {errors.agreeToTerms && <p className="text-sm text-destructive">{errors.agreeToTerms.message}</p>}
@@ -582,6 +646,9 @@ export default function ProviderRegistration() {
           </CardContent>
         </Card>
       </form>
+
+      {/* Terms Modal */}
+      <TermsModal open={showTermsModal} onOpenChange={setShowTermsModal} />
     </div>
   )
 }
