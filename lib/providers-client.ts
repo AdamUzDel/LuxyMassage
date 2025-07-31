@@ -56,7 +56,7 @@ export async function getAllProvidersClient(
     const { count } = await supabase
       .from("providers")
       .select("*", { count: "exact", head: true })
-      .eq("status", "approved")
+      // .eq("status", "approved")
 
     // Get providers for current page
     const { data, error } = await supabase
@@ -107,7 +107,7 @@ export async function getAdjacentProvidersClient(currentSlug: string): Promise<{
       .from("providers")
       .select(`
         slug,
-        users (
+        users!inner (
           full_name
         ),
         category
@@ -132,7 +132,7 @@ export async function getAdjacentProvidersClient(currentSlug: string): Promise<{
     const previous = previousData
       ? {
           id: "",
-          name: previousData.users?.full_name || "Unknown",
+          name: (previousData.users as any)?.full_name || "Unknown",
           slug: previousData.slug,
           category: previousData.category,
           bio: "",
@@ -153,6 +153,7 @@ export async function getAdjacentProvidersClient(currentSlug: string): Promise<{
             gender: "",
             smoker: false,
           },
+          socialMedia: {},
           contactInfo: {},
           createdAt: "",
           updatedAt: "",
@@ -162,7 +163,7 @@ export async function getAdjacentProvidersClient(currentSlug: string): Promise<{
     const next = nextData
       ? {
           id: "",
-          name: nextData.users?.full_name || "Unknown",
+          name: (nextData.users as any)?.full_name || "Unknown",
           slug: nextData.slug,
           category: nextData.category,
           bio: "",
@@ -183,6 +184,7 @@ export async function getAdjacentProvidersClient(currentSlug: string): Promise<{
             gender: "",
             smoker: false,
           },
+          socialMedia: {},
           contactInfo: {},
           createdAt: "",
           updatedAt: "",
@@ -193,5 +195,40 @@ export async function getAdjacentProvidersClient(currentSlug: string): Promise<{
   } catch (error) {
     console.error("Error in getAdjacentProviders:", error)
     return { previous: null, next: null }
+  }
+}
+
+export async function getProviderBySlugClient(slug: string): Promise<Provider | null> {
+  const supabase = createClient()
+
+  try {
+    const { data, error } = await supabase
+      .from("providers")
+      .select(`
+        *,
+        users!inner (
+          full_name,
+          avatar_url
+        ),
+        provider_images (
+          image_url,
+          thumbnail_url,
+          is_primary,
+          sort_order
+        )
+      `)
+      .eq("slug", slug)
+      .eq("status", "approved")
+      .single()
+
+    if (error || !data) {
+      console.error("Error fetching provider:", error)
+      return null
+    }
+
+    return convertDbProviderToProvider(data)
+  } catch (error) {
+    console.error("Error in getProviderBySlug:", error)
+    return null
   }
 }

@@ -1,39 +1,40 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import Image from "next/image"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
-  Star,
   MapPin,
-  CheckCircle,
+  Star,
   MessageCircle,
-  Phone,
-  Flag,
+  HelpCircle,
   ChevronLeft,
   ChevronRight,
-  Globe,
-  Twitter,
-  ArrowLeft,
-  ArrowRight,
+  Verified,
+  Languages,
+  Clock,
+  Phone,
+  MessageSquare,
+  Flag,
+  Share2,
 } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import type { Provider } from "@/types/provider"
-import ContactModal from "./contact-modal"
-import ReviewsTab from "./reviews-tab"
-import QuestionsTab from "./questions-tab"
-import ReportModal from "./report-modal"
+import  ContactModal  from "./contact-modal"
+import  ReportModal  from "./report-modal"
+import  ReviewsTab  from "./reviews-tab"
+import  QuestionsTab  from "./questions-tab"
 import { getAdjacentProvidersClient } from "@/lib/providers-client"
+import type { Provider } from "@/types/provider"
 
 interface ProviderProfileProps {
   provider: Provider
 }
 
-export default function ProviderProfile({ provider }: ProviderProfileProps) {
+export function ProviderProfile({ provider }: ProviderProfileProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [showContactModal, setShowContactModal] = useState(false)
   const [showReportModal, setShowReportModal] = useState(false)
@@ -42,17 +43,17 @@ export default function ProviderProfile({ provider }: ProviderProfileProps) {
     next: Provider | null
   }>({ previous: null, next: null })
 
-  // Load adjacent providers
   useEffect(() => {
-    const loadAdjacentProviders = async () => {
+    const fetchAdjacentProviders = async () => {
       try {
         const adjacent = await getAdjacentProvidersClient(provider.slug)
         setAdjacentProviders(adjacent)
       } catch (error) {
-        console.error("Error loading adjacent providers:", error)
+        console.error("Error fetching adjacent providers:", error)
       }
     }
-    loadAdjacentProviders()
+
+    fetchAdjacentProviders()
   }, [provider.slug])
 
   const nextImage = () => {
@@ -63,277 +64,318 @@ export default function ProviderProfile({ provider }: ProviderProfileProps) {
     setCurrentImageIndex((prev) => (prev === 0 ? provider.images.length - 1 : prev - 1))
   }
 
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${provider.name} - LuxyDirectory`,
+          text: `Check out ${provider.name} on LuxyDirectory`,
+          url: window.location.href,
+        })
+      } catch (error) {
+        console.log("Error sharing:", error)
+      }
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(window.location.href)
+    }
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Navigation Header */}
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="container mx-auto px-4 py-8">
+        {/* Navigation */}
         <div className="flex items-center justify-between mb-6">
-          <Button variant="outline" asChild>
-            <Link href="/">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Providers
-            </Link>
-          </Button>
-
-          {/* Provider Navigation */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-4">
             {adjacentProviders.previous && (
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/provider/${adjacentProviders.previous.slug}`}>
-                  <ChevronLeft className="w-4 h-4 mr-1" />
-                  <span className="hidden sm:inline">Previous</span>
-                </Link>
-              </Button>
+              <Link
+                href={`/provider/${adjacentProviders.previous.slug}`}
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                {adjacentProviders.previous.name}
+              </Link>
             )}
-
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleShare} className="gap-2 bg-transparent">
+              <Share2 className="h-4 w-4" />
+              Share
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowReportModal(true)}
+              className="gap-2 text-red-600 hover:text-red-700"
+            >
+              <Flag className="h-4 w-4" />
+              Report
+            </Button>
+          </div>
+          <div className="flex items-center gap-4">
             {adjacentProviders.next && (
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/provider/${adjacentProviders.next.slug}`}>
-                  <span className="hidden sm:inline">Next</span>
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Link>
-              </Button>
+              <Link
+                href={`/provider/${adjacentProviders.next.slug}`}
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {adjacentProviders.next.name}
+                <ChevronRight className="h-4 w-4" />
+              </Link>
             )}
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Images and Basic Info */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Image Gallery */}
+          {/* Left Column - Images */}
+          <div className="lg:col-span-2">
             <Card className="overflow-hidden">
-              <div className="relative">
-                <Image
-                  src={provider.images[currentImageIndex] || "/placeholder.svg"}
-                  alt={`${provider.name} - Image ${currentImageIndex + 1}`}
-                  width={800}
-                  height={600}
-                  className="w-full h-96 object-cover"
-                />
-
-                {provider.images.length > 1 && (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2"
-                      onClick={prevImage}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2"
-                      onClick={nextImage}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
-
-                {/* Image Indicators */}
-                {provider.images.length > 1 && (
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                    {provider.images.map((_, index) => (
-                      <button
-                        key={index}
-                        className={`w-2 h-2 rounded-full ${index === currentImageIndex ? "bg-white" : "bg-white/50"}`}
-                        onClick={() => setCurrentImageIndex(index)}
+              <CardContent className="p-0">
+                {provider.images.length > 0 ? (
+                  <div className="relative">
+                    <div className="aspect-[4/3] relative">
+                      <Image
+                        src={provider.images[currentImageIndex] || "/placeholder.svg"}
+                        alt={`${provider.name} - Image ${currentImageIndex + 1}`}
+                        fill
+                        className="object-cover"
+                        priority
                       />
-                    ))}
+                    </div>
+
+                    {provider.images.length > 1 && (
+                      <>
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white"
+                          onClick={prevImage}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white"
+                          onClick={nextImage}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+
+                        {/* Image indicators */}
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                          {provider.images.map((_, index) => (
+                            <button
+                              key={index}
+                              className={`w-2 h-2 rounded-full transition-colors ${
+                                index === currentImageIndex ? "bg-white" : "bg-white/50"
+                              }`}
+                              onClick={() => setCurrentImageIndex(index)}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="aspect-[4/3] bg-muted flex items-center justify-center">
+                    <p className="text-muted-foreground">No images available</p>
                   </div>
                 )}
-
-                {/* Verified Badge */}
-                {provider.verified && (
-                  <Badge className="absolute top-4 right-4 bg-green-500 hover:bg-green-600">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Verified
-                  </Badge>
-                )}
-
-                {/* Report Button */}
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute top-4 left-4"
-                  onClick={() => setShowReportModal(true)}
-                >
-                  <Flag className="h-4 w-4" />
-                </Button>
-              </div>
-            </Card>
-
-            {/* Bio Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle>About {provider.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground leading-relaxed">{provider.bio}</p>
               </CardContent>
             </Card>
 
-            {/* Reviews and Q&A Tabs */}
-            <Tabs defaultValue="reviews" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="reviews">Reviews ({provider.reviewCount})</TabsTrigger>
-                <TabsTrigger value="questions">Q&A ({provider.questionCount})</TabsTrigger>
-              </TabsList>
-              <TabsContent value="reviews">
-                <ReviewsTab providerId={provider.id} />
-              </TabsContent>
-              <TabsContent value="questions">
-                <QuestionsTab providerId={provider.id} />
-              </TabsContent>
-            </Tabs>
+            {/* Thumbnail strip */}
+            {provider.images.length > 1 && (
+              <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                {provider.images.map((image, index) => (
+                  <button
+                    key={index}
+                    className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
+                      index === currentImageIndex ? "border-primary" : "border-transparent"
+                    }`}
+                    onClick={() => setCurrentImageIndex(index)}
+                  >
+                    <Image
+                      src={image || "/placeholder.svg"}
+                      alt={`Thumbnail ${index + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Right Column - Provider Details */}
+          {/* Right Column - Profile Info */}
           <div className="space-y-6">
-            {/* Provider Info Card */}
+            {/* Profile Header */}
             <Card>
-              <CardHeader className="text-center">
-                <Avatar className="w-24 h-24 mx-auto mb-4">
-                  <AvatarImage src={provider.avatar || "/placeholder.svg"} alt={provider.name} />
-                  <AvatarFallback>
-                    {provider.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <CardTitle className="text-2xl">{provider.name}</CardTitle>
-                <p className="text-primary font-semibold">{provider.category}</p>
-                <div className="flex items-center justify-center space-x-1 mt-2">
-                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold">{provider.rating}</span>
-                  <span className="text-muted-foreground">({provider.reviewCount} reviews)</span>
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage src={provider.avatar || "/placeholder.svg"} alt={provider.name} />
+                    <AvatarFallback>{provider.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h1 className="text-2xl font-bold">{provider.name}</h1>
+                      {provider.verified && <Verified className="h-5 w-5 text-blue-500" />}
+                    </div>
+                    <Badge variant="secondary" className="mb-2">
+                      {provider.category}
+                    </Badge>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        {provider.location}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        {provider.rating} ({provider.reviewCount})
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Location */}
-                <div className="flex items-center space-x-2">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                  <span>{provider.location}</span>
-                </div>
+
+                {/* Bio */}
+                {provider.bio && <p className="mt-4 text-muted-foreground leading-relaxed">{provider.bio}</p>}
 
                 {/* Languages */}
-                <div className="flex items-center space-x-2">
-                  <Globe className="w-4 h-4 text-muted-foreground" />
-                  <span>{provider.languages.join(", ")}</span>
-                </div>
-
-                {/* Service Rate */}
-                <div className="bg-muted p-4 rounded-lg">
-                  <h4 className="font-semibold mb-2">Service Rate</h4>
-                  <div className="space-y-1">
-                    <p className="text-2xl font-bold">{provider.rate.local}</p>
-                    <p className="text-sm text-muted-foreground">≈ {provider.rate.usd}</p>
-                  </div>
-                </div>
-
-                {/* Contact Buttons */}
-                <div className="space-y-2">
-                  <Button className="w-full" onClick={() => setShowContactModal(true)}>
-                    <Phone className="w-4 h-4 mr-2" />
-                    Contact Info
-                  </Button>
-                  <Button variant="outline" className="w-full bg-transparent">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Send Message
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Personal Details Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Personal Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Age</span>
-                  <span>{provider.personalDetails.age}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Height</span>
-                  <span>{provider.personalDetails.height}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Hair Color</span>
-                  <span>{provider.personalDetails.hairColor}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Nationality</span>
-                  <span>{provider.personalDetails.nationality}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Gender</span>
-                  <span>{provider.personalDetails.gender}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Smoker</span>
-                  <span>{provider.personalDetails.smoker ? "Yes" : "No"}</span>
-                </div>
-                {provider.socialMedia?.twitter && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Twitter</span>
-                    <a
-                      href={`https://twitter.com/${provider.socialMedia.twitter}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline flex items-center"
-                    >
-                      <Twitter className="w-4 h-4 mr-1" />@{provider.socialMedia.twitter}
-                    </a>
+                {provider.languages.length > 0 && (
+                  <div className="mt-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Languages className="h-4 w-4" />
+                      <span className="text-sm font-medium">Languages</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {provider.languages.map((language) => (
+                        <Badge key={language} variant="outline" className="text-xs">
+                          {language}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Adjacent Providers Navigation - Mobile */}
-            <div className="lg:hidden">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">More Providers</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {adjacentProviders.previous && (
-                    <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
-                      <Link href={`/provider/${adjacentProviders.previous.slug}`}>
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        <div className="text-left">
-                          <div className="font-medium">{adjacentProviders.previous.name}</div>
-                          <div className="text-sm text-muted-foreground">{adjacentProviders.previous.category}</div>
-                        </div>
-                      </Link>
-                    </Button>
-                  )}
+            {/* Rates */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Clock className="h-4 w-4" />
+                  <span className="font-medium">Rates</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Local</span>
+                    <span className="font-medium">{provider.rate.local}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">USD</span>
+                    <span className="font-medium">{provider.rate.usd}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-                  {adjacentProviders.next && (
-                    <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
-                      <Link href={`/provider/${adjacentProviders.next.slug}`}>
-                        <div className="text-left flex-1">
-                          <div className="font-medium">{adjacentProviders.next.name}</div>
-                          <div className="text-sm text-muted-foreground">{adjacentProviders.next.category}</div>
-                        </div>
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
-                    </Button>
-                  )}
+            {/* Contact Actions */}
+            <div className="space-y-3">
+              <Button className="w-full gap-2" size="lg" onClick={() => setShowContactModal(true)}>
+                <MessageSquare className="h-4 w-4" />
+                Contact {provider.name}
+              </Button>
+
+              {provider.contactInfo.whatsapp && (
+                <Button variant="outline" className="w-full gap-2 bg-transparent" size="lg" asChild>
+                  <a href={`https://wa.me/${provider.contactInfo.whatsapp}`} target="_blank" rel="noopener noreferrer">
+                    <Phone className="h-4 w-4" />
+                    WhatsApp
+                  </a>
+                </Button>
+              )}
+            </div>
+
+            {/* Personal Details */}
+            {provider.personalDetails && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="font-medium mb-4">Personal Details</h3>
+                  <div className="space-y-3 text-sm">
+                    {provider.personalDetails.age > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Age</span>
+                        <span>{provider.personalDetails.age}</span>
+                      </div>
+                    )}
+                    {provider.personalDetails.height && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Height</span>
+                        <span>{provider.personalDetails.height}</span>
+                      </div>
+                    )}
+                    {provider.personalDetails.hairColor && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Hair Color</span>
+                        <span>{provider.personalDetails.hairColor}</span>
+                      </div>
+                    )}
+                    {provider.personalDetails.nationality && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Nationality</span>
+                        <span>{provider.personalDetails.nationality}</span>
+                      </div>
+                    )}
+                    {provider.personalDetails.gender && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Gender</span>
+                        <span>{provider.personalDetails.gender}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Smoker</span>
+                      <span>{provider.personalDetails.smoker ? "Yes" : "No"}</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-            </div>
+            )}
           </div>
+        </div>
+
+        {/* Tabs Section */}
+        <div className="mt-12">
+          <Tabs defaultValue="reviews" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="reviews" className="gap-2">
+                <MessageCircle className="h-4 w-4" />
+                Reviews ({provider.reviewCount})
+              </TabsTrigger>
+              <TabsTrigger value="questions" className="gap-2">
+                <HelpCircle className="h-4 w-4" />
+                Q&A ({provider.questionCount})
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="reviews" className="mt-6">
+              <ReviewsTab providerId={provider.id} />
+            </TabsContent>
+            <TabsContent value="questions" className="mt-6">
+              <QuestionsTab providerId={provider.id} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 
       {/* Modals */}
       <ContactModal provider={provider} open={showContactModal} onOpenChange={setShowContactModal} />
-      <ReportModal providerId={provider.id} open={showReportModal} onOpenChange={setShowReportModal} />
+
+      <ReportModal
+        providerId={provider.id}
+        providerName={provider.name}
+        open={showReportModal}
+        onOpenChange={setShowReportModal}
+      />
     </div>
   )
 }

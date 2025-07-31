@@ -12,6 +12,7 @@ import { AlertTriangle } from "lucide-react"
 
 interface ReportModalProps {
   providerId: string
+  providerName: string
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -25,7 +26,7 @@ const reportReasons = [
   { value: "other", label: "Other (please specify)" },
 ]
 
-export default function ReportModal({ providerId, open, onOpenChange }: ReportModalProps) {
+export default function ReportModal({ providerId, providerName, open, onOpenChange }: ReportModalProps) {
   const [selectedReason, setSelectedReason] = useState("")
   const [additionalDetails, setAdditionalDetails] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)

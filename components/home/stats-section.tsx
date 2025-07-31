@@ -30,7 +30,7 @@ const stats = [
 
 export default function StatsSection() {
   return (
-    <section className="py-16 bg-muted/30 rounded-3xl">
+    <section className="py-16 mb-8 bg-muted/30 rounded-3xl">
       <div className="text-center mb-12">
         <h2 className="text-3xl lg:text-4xl font-bold mb-4">Trusted by Thousands</h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">

@@ -28,7 +28,7 @@ import TermsModal from "@/components/auth/terms-modal"
 const providerSchema = z.object({
   // Personal Information
   name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
+  /* email: z.string().email("Invalid email address"), */
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   age: z.number().min(18, "Must be at least 18 years old"),
   gender: z.enum(["male", "female", "other"]),
@@ -98,7 +98,7 @@ export default function ProviderRegistration() {
       agreeToTerms: false,
       languages: [],
       // Pre-fill with user data if available
-      email: user?.email || "",
+      // email: user?.email || "",
     },
   })
 
@@ -122,7 +122,7 @@ export default function ProviderRegistration() {
   const getFieldsForStep = (step: number): (keyof ProviderFormData)[] => {
     switch (step) {
       case 1:
-        return ["name", "email", "phone", "age", "gender", "nationality"]
+        return ["name", /* "email", */ "phone", "age", "gender", "nationality"]
       case 2:
         return ["category", "bio", "experience", "languages"]
       case 3:
@@ -323,11 +323,11 @@ export default function ProviderRegistration() {
                   {errors.name && <p className="text-sm text-destructive mt-1">{errors.name.message}</p>}
                 </div>
 
-                <div>
+                {/* <div>
                   <Label htmlFor="email">Email Address *</Label>
                   <Input {...register("email")} type="email" placeholder="your@email.com" disabled />
                   {errors.email && <p className="text-sm text-destructive mt-1">{errors.email.message}</p>}
-                </div>
+                </div> */}
 
                 <div>
                   <Label htmlFor="phone">Phone Number *</Label>
