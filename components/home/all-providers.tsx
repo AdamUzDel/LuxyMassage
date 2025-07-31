@@ -10,7 +10,7 @@ import Link from "next/link"
 import { useLanguage } from "@/components/language-provider"
 import { useLocation } from "@/hooks/use-location"
 import { LocationConsentBanner } from "@/components/ui/location-consent-banner"
-import { getAllProviders } from "@/lib/providers"
+import { getAllProvidersClient } from "@/lib/providers-client"
 import type { Provider } from "@/types/provider"
 
 const ITEMS_PER_PAGE = 8
@@ -33,7 +33,7 @@ export default function AllProviders() {
   const loadProviders = async () => {
     setIsLoading(true)
     try {
-      const result = await getAllProviders(currentPage, ITEMS_PER_PAGE)
+      const result = await getAllProvidersClient(currentPage, ITEMS_PER_PAGE)
       setProviders(result.providers)
       setTotalPages(result.totalPages)
       setTotalCount(result.totalCount)

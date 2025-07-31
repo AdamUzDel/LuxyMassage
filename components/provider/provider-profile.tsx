@@ -27,7 +27,7 @@ import ContactModal from "./contact-modal"
 import ReviewsTab from "./reviews-tab"
 import QuestionsTab from "./questions-tab"
 import ReportModal from "./report-modal"
-import { getAdjacentProviders } from "@/lib/providers"
+import { getAdjacentProvidersClient } from "@/lib/providers-client"
 
 interface ProviderProfileProps {
   provider: Provider
@@ -45,8 +45,12 @@ export default function ProviderProfile({ provider }: ProviderProfileProps) {
   // Load adjacent providers
   useEffect(() => {
     const loadAdjacentProviders = async () => {
-      const adjacent = await getAdjacentProviders(provider.slug)
-      setAdjacentProviders(adjacent)
+      try {
+        const adjacent = await getAdjacentProvidersClient(provider.slug)
+        setAdjacentProviders(adjacent)
+      } catch (error) {
+        console.error("Error loading adjacent providers:", error)
+      }
     }
     loadAdjacentProviders()
   }, [provider.slug])
@@ -236,7 +240,7 @@ export default function ProviderProfile({ provider }: ProviderProfileProps) {
                     <Phone className="w-4 h-4 mr-2" />
                     Contact Info
                   </Button>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full bg-transparent">
                     <MessageCircle className="w-4 h-4 mr-2" />
                     Send Message
                   </Button>
@@ -298,7 +302,7 @@ export default function ProviderProfile({ provider }: ProviderProfileProps) {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {adjacentProviders.previous && (
-                    <Button variant="outline" className="w-full justify-start" asChild>
+                    <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
                       <Link href={`/provider/${adjacentProviders.previous.slug}`}>
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         <div className="text-left">
@@ -310,7 +314,7 @@ export default function ProviderProfile({ provider }: ProviderProfileProps) {
                   )}
 
                   {adjacentProviders.next && (
-                    <Button variant="outline" className="w-full justify-start" asChild>
+                    <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
                       <Link href={`/provider/${adjacentProviders.next.slug}`}>
                         <div className="text-left flex-1">
                           <div className="font-medium">{adjacentProviders.next.name}</div>
