@@ -9,8 +9,8 @@ export interface CompressionOptions {
 
 export async function compressImage(file: File, options: CompressionOptions = {}): Promise<File> {
   const defaultOptions = {
-    maxSizeMB: 0.01, // 10KB
-    maxWidthOrHeight: 1920,
+    maxSizeMB: 0.02, // 20KB
+    maxWidthOrHeight: 3840,
     useWebWorker: true,
     fileType: "image/jpeg",
     ...options,
@@ -20,12 +20,12 @@ export async function compressImage(file: File, options: CompressionOptions = {}
     const compressedFile = await imageCompression(file, defaultOptions)
 
     // If still too large, compress further
-    if (compressedFile.size > 10240) {
-      // 10KB
+    if (compressedFile.size > 20240) {
+      // 20KB
       return await imageCompression(compressedFile, {
         ...defaultOptions,
-        maxSizeMB: 0.008, // 8KB
-        maxWidthOrHeight: 1600,
+        maxSizeMB: 0.016, // 16KB
+        maxWidthOrHeight: 2200,
       })
     }
 
