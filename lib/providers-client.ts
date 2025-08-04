@@ -1,6 +1,11 @@
 import { createClient } from "@/lib/supabase/client"
 import type { Provider } from "@/types/provider"
 
+type ProviderWithUser = Provider & {
+  users: any
+  provider_images: any[]
+}
+
 // Convert database provider to our Provider type
 function convertDbProviderToProvider(dbProvider: any): Provider {
   return {
@@ -56,14 +61,14 @@ export async function getAllProvidersClient(
     const { count } = await supabase
       .from("providers")
       .select("*", { count: "exact", head: true })
-      // .eq("status", "approved")
+      .eq("status", "approved")
 
     // Get providers for current page
     const { data, error } = await supabase
       .from("providers")
       .select(`
         *,
-        users (
+        users!inner (
           full_name,
           avatar_url
         ),
@@ -102,94 +107,50 @@ export async function getAdjacentProvidersClient(currentSlug: string): Promise<{
   const supabase = createClient()
 
   try {
-    // Get all approved providers ordered by creation date
-    const { data, error } = await supabase
+    // Get current provider's created_at timestamp
+    const { data: currentProvider } = await supabase
+      .from("providers")
+      .select("created_at")
+      .eq("slug", currentSlug)
+      .single()
+
+    if (!currentProvider) return { previous: null, next: null }
+
+    // Get previous provider (older)
+    const { data: previousData } = await supabase
       .from("providers")
       .select(`
         slug,
+        category,
         users!inner (
           full_name
-        ),
-        category
+        )
       `)
       .eq("status", "approved")
+      .lt("created_at", currentProvider.created_at)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    // Get next provider (newer)
+    const { data: nextData } = await supabase
+      .from("providers")
+      .select(`
+        slug,
+        category,
+        users!inner (
+          full_name
+        )
+      `)
+      .eq("status", "approved")
+      .gt("created_at", currentProvider.created_at)
       .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle()
 
-    if (error || !data) {
-      console.error("Error fetching adjacent providers:", error)
-      return { previous: null, next: null }
-    }
+    const previous = previousData ? convertDbProviderToProvider(previousData) : null
 
-    const currentIndex = data.findIndex((provider) => provider.slug === currentSlug)
-
-    if (currentIndex === -1) {
-      return { previous: null, next: null }
-    }
-
-    const previousData = currentIndex > 0 ? data[currentIndex - 1] : null
-    const nextData = currentIndex < data.length - 1 ? data[currentIndex + 1] : null
-
-    const previous = previousData
-      ? {
-          id: "",
-          name: (previousData.users as any)?.full_name || "Unknown",
-          slug: previousData.slug,
-          category: previousData.category,
-          bio: "",
-          location: "",
-          languages: [],
-          rating: 0,
-          reviewCount: 0,
-          questionCount: 0,
-          verified: false,
-          images: [],
-          avatar: "",
-          rate: { local: "", usd: "" },
-          personalDetails: {
-            age: 0,
-            height: "",
-            hairColor: "",
-            nationality: "",
-            gender: "",
-            smoker: false,
-          },
-          socialMedia: {},
-          contactInfo: {},
-          createdAt: "",
-          updatedAt: "",
-        }
-      : null
-
-    const next = nextData
-      ? {
-          id: "",
-          name: (nextData.users as any)?.full_name || "Unknown",
-          slug: nextData.slug,
-          category: nextData.category,
-          bio: "",
-          location: "",
-          languages: [],
-          rating: 0,
-          reviewCount: 0,
-          questionCount: 0,
-          verified: false,
-          images: [],
-          avatar: "",
-          rate: { local: "", usd: "" },
-          personalDetails: {
-            age: 0,
-            height: "",
-            hairColor: "",
-            nationality: "",
-            gender: "",
-            smoker: false,
-          },
-          socialMedia: {},
-          contactInfo: {},
-          createdAt: "",
-          updatedAt: "",
-        }
-      : null
+    const next = nextData ? convertDbProviderToProvider(nextData) : null
 
     return { previous, next }
   } catch (error) {
