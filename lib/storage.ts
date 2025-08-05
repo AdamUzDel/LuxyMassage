@@ -315,7 +315,7 @@ export class StorageService {
     }
   }
 
-  async deleteProviderImage(imageId: string, isServer = false): Promise<void> {
+  async deleteProviderImage(imageId: string): Promise<void> {
     // const supabase = isServer ? createServerClient() : createClient()
 
     try {
@@ -376,7 +376,7 @@ export class StorageService {
     }
   }
 
-  async updateImageOrder(imageId: string, sortOrder: number, isServer = false): Promise<void> {
+  async updateImageOrder(imageId: string, sortOrder: number): Promise<void> {
     // const supabase = isServer ? createServerClient() : createClient()
 
     try {
@@ -402,7 +402,7 @@ export class StorageService {
     }
   }
 
-  async setPrimaryImage(imageId: string, providerId: string, isServer = false): Promise<void> {
+  async setPrimaryImage(imageId: string, providerId: string): Promise<void> {
     // const supabase = isServer ? createServerClient() : createClient()
 
     try {
