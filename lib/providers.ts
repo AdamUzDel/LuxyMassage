@@ -11,9 +11,9 @@ function convertDbProviderToProvider(dbProvider: any): Provider {
     bio: dbProvider.bio,
     location: `${dbProvider.city}, ${dbProvider.country}`,
     languages: dbProvider.languages || [],
-    rating: 4.8, // TODO: Calculate from reviews
-    reviewCount: 0, // TODO: Get from reviews table
-    questionCount: 0, // TODO: Get from questions table
+    rating: dbProvider.average_rating || 0,
+    reviewCount: dbProvider.review_count || 0,
+    questionCount: dbProvider.question_count || 0,
     verified: dbProvider.verification_status === "verified",
     images: dbProvider.provider_images?.map((img: any) => img.image_url) || [],
     avatar: dbProvider.users?.avatar_url || "/placeholder.svg?height=200&width=200",
@@ -42,7 +42,7 @@ function convertDbProviderToProvider(dbProvider: any): Provider {
 }
 
 export async function getProviderBySlug(slug: string): Promise<Provider | null> {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
   try {
     const { data, error } = await supabase
@@ -77,7 +77,7 @@ export async function getProviderBySlug(slug: string): Promise<Provider | null> 
 }
 
 export async function getFeaturedProviders(): Promise<Provider[]> {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
   try {
     const { data, error } = await supabase
@@ -120,7 +120,7 @@ export async function getAllProviders(
   totalCount: number
   totalPages: number
 }> {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
   try {
     // Get total count
@@ -167,7 +167,7 @@ export async function getAllProviders(
 }
 
 export async function getProvidersByLocation(city?: string, country?: string): Promise<Provider[]> {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
   try {
     let query = supabase
@@ -215,7 +215,7 @@ export async function getAdjacentProviders(currentSlug: string): Promise<{
   previous: Provider | null
   next: Provider | null
 }> {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
   try {
     // Get all approved providers ordered by creation date
@@ -246,63 +246,11 @@ export async function getAdjacentProviders(currentSlug: string): Promise<{
     const nextData = currentIndex < data.length - 1 ? data[currentIndex + 1] : null
 
     const previous = previousData
-      ? {
-          id: "",
-          name: previousData.users?.full_name || "Unknown",
-          slug: previousData.slug,
-          category: previousData.category,
-          bio: "",
-          location: "",
-          languages: [],
-          rating: 0,
-          reviewCount: 0,
-          questionCount: 0,
-          verified: false,
-          images: [],
-          avatar: "",
-          rate: { local: "", usd: "" },
-          personalDetails: {
-            age: 0,
-            height: "",
-            hairColor: "",
-            nationality: "",
-            gender: "",
-            smoker: false,
-          },
-          contactInfo: {},
-          createdAt: "",
-          updatedAt: "",
-        }
+      ? convertDbProviderToProvider(previousData)
       : null
 
     const next = nextData
-      ? {
-          id: "",
-          name: nextData.users?.full_name || "Unknown",
-          slug: nextData.slug,
-          category: nextData.category,
-          bio: "",
-          location: "",
-          languages: [],
-          rating: 0,
-          reviewCount: 0,
-          questionCount: 0,
-          verified: false,
-          images: [],
-          avatar: "",
-          rate: { local: "", usd: "" },
-          personalDetails: {
-            age: 0,
-            height: "",
-            hairColor: "",
-            nationality: "",
-            gender: "",
-            smoker: false,
-          },
-          contactInfo: {},
-          createdAt: "",
-          updatedAt: "",
-        }
+      ? convertDbProviderToProvider(nextData)
       : null
 
     return { previous, next }

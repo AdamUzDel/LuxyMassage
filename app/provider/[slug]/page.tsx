@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { ProviderProfile } from "@/components/provider/provider-profile"
+import ProviderProfile from "@/components/provider/provider-profile"
 import { getProviderBySlug } from "@/lib/providers"
 
 interface ProviderPageProps {

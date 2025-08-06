@@ -1,110 +1,185 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { AlertTriangle } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { AlertTriangle } from 'lucide-react'
+import { useAuth } from "@/components/auth/auth-provider"
+import { createReport } from "@/lib/database/reports"
+import { toast } from "sonner"
 
 interface ReportModalProps {
   providerId: string
   providerName: string
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  isOpen: boolean
+  onClose: () => void
 }
 
 const reportReasons = [
-  { value: "inappropriate-content", label: "Inappropriate content or images" },
-  { value: "fake-profile", label: "Fake or misleading profile" },
-  { value: "spam", label: "Spam or promotional content" },
-  { value: "harassment", label: "Harassment or inappropriate behavior" },
-  { value: "fraud", label: "Fraudulent activity or scam" },
-  { value: "other", label: "Other (please specify)" },
+  {
+    value: "inappropriate_content",
+    label: "Inappropriate Content",
+    description: "Profile contains inappropriate or offensive content"
+  },
+  {
+    value: "fake_profile",
+    label: "Fake Profile",
+    description: "This appears to be a fake or fraudulent profile"
+  },
+  {
+    value: "spam",
+    label: "Spam",
+    description: "Spamming or excessive promotional content"
+  },
+  {
+    value: "harassment",
+    label: "Harassment",
+    description: "Harassing or abusive behavior"
+  },
+  {
+    value: "scam",
+    label: "Scam/Fraud",
+    description: "Suspected scam or fraudulent activity"
+  },
+  {
+    value: "copyright",
+    label: "Copyright Violation",
+    description: "Using copyrighted content without permission"
+  },
+  {
+    value: "other",
+    label: "Other",
+    description: "Other reason not listed above"
+  }
 ]
 
-export default function ReportModal({ providerId, providerName, open, onOpenChange }: ReportModalProps) {
+export default function ReportModal({ providerId, providerName, isOpen, onClose }: ReportModalProps) {
   const [selectedReason, setSelectedReason] = useState("")
-  const [additionalDetails, setAdditionalDetails] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [details, setDetails] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  
+  const { user } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedReason) return
+    
+    if (!user) {
+      toast.error('Please sign in to report a provider')
+      return
+    }
 
-    setIsSubmitting(true)
+    if (!selectedReason) {
+      toast.error('Please select a reason for reporting')
+      return
+    }
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      setSubmitting(true)
+      
+      const reasonLabel = reportReasons.find(r => r.value === selectedReason)?.label || selectedReason
+      
+      await createReport(providerId, reasonLabel, details.trim() || undefined)
+      
+      toast.success('Report submitted successfully. We will review it shortly.')
+      
+      // Reset form
+      setSelectedReason("")
+      setDetails("")
+      onClose()
+    } catch (error: unknown) {
+      console.error('Error submitting report:', error)
+      if (error instanceof Error && error.message.includes('duplicate')) {
+        toast.error('You have already reported this provider')
+      } else {
+        toast.error('Failed to submit report. Please try again.')
+      }
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
-    console.log("Report submitted:", {
-      providerId,
-      reason: selectedReason,
-      details: additionalDetails,
-    })
-
-    setIsSubmitting(false)
-    onOpenChange(false)
-
-    // Reset form
-    setSelectedReason("")
-    setAdditionalDetails("")
+  const handleClose = () => {
+    if (!submitting) {
+      setSelectedReason("")
+      setDetails("")
+      onClose()
+    }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center">
-            <AlertTriangle className="w-5 h-5 mr-2 text-destructive" />
-            Report Profile
+          <DialogTitle className="flex items-center space-x-2">
+            <AlertTriangle className="h-5 w-5 text-red-500" />
+            <span>Report Provider</span>
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <p className="text-sm text-muted-foreground mb-4">
+              You are reporting <strong>{providerName}</strong>. Please select a reason and provide additional details if necessary.
+            </p>
+          </div>
+
           <div>
             <Label className="text-base font-medium">Reason for reporting</Label>
             <RadioGroup value={selectedReason} onValueChange={setSelectedReason} className="mt-3">
               {reportReasons.map((reason) => (
-                <div key={reason.value} className="flex items-center space-x-2">
-                  <RadioGroupItem value={reason.value} id={reason.value} />
-                  <Label htmlFor={reason.value} className="text-sm font-normal">
-                    {reason.label}
-                  </Label>
+                <div key={reason.value} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50">
+                  <RadioGroupItem value={reason.value} id={reason.value} className="mt-0.5" />
+                  <div className="flex-1">
+                    <Label htmlFor={reason.value} className="font-medium cursor-pointer">
+                      {reason.label}
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {reason.description}
+                    </p>
+                  </div>
                 </div>
               ))}
             </RadioGroup>
           </div>
 
           <div>
-            <Label htmlFor="details">Additional details (optional)</Label>
+            <Label htmlFor="details">Additional Details (Optional)</Label>
             <Textarea
               id="details"
-              value={additionalDetails}
-              onChange={(e) => setAdditionalDetails(e.target.value)}
-              placeholder="Please provide any additional information that might help us investigate this report..."
-              rows={3}
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              placeholder="Please provide any additional information that might help us understand the issue..."
+              rows={4}
               className="mt-2"
             />
           </div>
 
-          <div className="bg-muted/50 rounded-lg p-4">
-            <p className="text-sm text-muted-foreground">
-              Reports are reviewed by our moderation team. False reports may result in account restrictions. All reports
-              are confidential and the reported user will not know who submitted the report.
-            </p>
-          </div>
-
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+          <div className="flex space-x-3">
+            <Button
+              type="submit"
+              disabled={!selectedReason || submitting}
+              className="flex-1"
+            >
+              {submitting ? 'Submitting...' : 'Submit Report'}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={submitting}
+            >
               Cancel
             </Button>
-            <Button type="submit" variant="destructive" disabled={!selectedReason || isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Submit Report"}
-            </Button>
+          </div>
+
+          <div className="text-xs text-muted-foreground">
+            <p>
+              Reports are reviewed by our moderation team. False reports may result in account restrictions.
+              All reports are confidential and the provider will not know who reported them.
+            </p>
           </div>
         </form>
       </DialogContent>
