@@ -105,8 +105,8 @@ export default function AllProviders() {
   }
 
   return (
-    <section className="py-6">
-      <div className="text-center mb-12">
+    <section className="pt-8">
+      <div className="text-center mb-8">
         <h2 className="text-3xl lg:text-4xl font-bold mb-4">{getLocationTitle()}</h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
           {location
@@ -127,12 +127,12 @@ export default function AllProviders() {
       ) : (
         <>
           {/* Mobile Layout */}
-          <div className="block lg:hidden space-y-6 mb-12">
+          <div className="block lg:hidden space-y-6 mb-8">
             {providers.map((provider) => (
               <Card key={provider.id} className="overflow-hidden">
                 <div className="flex">
                   {/* Image Section */}
-                  <div className="relative w-32 h-32 flex-shrink-0">
+                  <div className="relative w-32 h-auto flex-shrink-0">
                     <Image
                       src={provider.images[0] || "/placeholder.svg?height=300&width=300"}
                       alt={provider.name}
@@ -157,9 +157,11 @@ export default function AllProviders() {
                     <div className="space-y-2">
                       <h3 className="font-semibold text-lg leading-tight">{provider.name}</h3>
 
-                      <div className="flex items-center space-x-2">
-                        <span className="text-primary font-medium text-sm">{provider.category}</span>
-                        <span className="text-muted-foreground">•</span>
+                      <div className="flex flex-col items-start space-y-2">
+                        <div>
+                          <span className="text-muted-foreground">• </span>
+                          <span className="text-primary font-medium text-sm">{provider.category}</span>
+                        </div>
                         <div className="flex items-center space-x-1">
                           <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                           <span className="text-sm font-medium">{provider.rating}</span>
