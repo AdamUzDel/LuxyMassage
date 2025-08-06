@@ -30,9 +30,13 @@ export interface Provider {
   contactInfo: {
     whatsapp?: string
     phone?: string
+    email?: string
+    website?: string
   }
   createdAt: string
   updatedAt: string
+  is_featured?:boolean
+  experienceYears?: number
 }
 
 export interface Review {

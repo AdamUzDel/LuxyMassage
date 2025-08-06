@@ -106,14 +106,14 @@ export default function ProfilePage({ user, userProfile, providerProfile }: Prof
               </div>
 
               {/* Action Buttons */}
-              <div className="flex space-x-2">
+              <div className="flex flex-col md:flex-row space-x-2">
                 <Button variant="outline" onClick={() => setIsEditing(true)}>
                   <Edit className="w-4 h-4 mr-2" />
                   Edit Profile
                 </Button>
 
                 {isProvider && providerProfile && (
-                  <Button asChild>
+                  <Button asChild className="mt-3 md:mt-0">
                     <a href={`/provider/${providerProfile?.slug}`}>
                       <User className="w-4 h-4 mr-2" />
                       View Public Profile
