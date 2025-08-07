@@ -1,34 +1,65 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Users, CheckCircle, Globe, Star } from "lucide-react"
+"use client"
 
-const stats = [
-  {
-    icon: Users,
-    value: "50,000+",
-    label: "Active Providers",
-    description: "Verified professionals worldwide",
-  },
-  {
-    icon: CheckCircle,
-    value: "98%",
-    label: "Satisfaction Rate",
-    description: "Happy clients and successful projects",
-  },
-  {
-    icon: Globe,
-    value: "150+",
-    label: "Countries",
-    description: "Global reach and local expertise",
-  },
-  {
-    icon: Star,
-    value: "4.9/5",
-    label: "Average Rating",
-    description: "Based on verified reviews",
-  },
-]
+import { useEffect, useState } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Users, CheckCircle, Globe, Star } from 'lucide-react'
+import { getHomeStats, type HomeStats } from "@/lib/database/stats"
 
 export default function StatsSection() {
+  const [stats, setStats] = useState<HomeStats | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const data = await getHomeStats()
+        setStats(data)
+      } catch (error) {
+        console.error('Error loading stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
+
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M+`
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K+`
+    }
+    return num.toString()
+  }
+
+  const statsConfig = [
+    {
+      icon: Users,
+      value: loading ? "..." : formatNumber(stats?.totalProviders || 0),
+      label: "Active Providers",
+      description: "Verified professionals worldwide",
+    },
+    {
+      icon: CheckCircle,
+      value: loading ? "..." : `${stats?.satisfactionRate || 0}%`,
+      label: "Satisfaction Rate",
+      description: "Happy clients and successful projects",
+    },
+    {
+      icon: Globe,
+      value: loading ? "..." : `${stats?.totalCountries || 0}+`,
+      label: "Countries",
+      description: "Global reach and local expertise",
+    },
+    {
+      icon: Star,
+      value: loading ? "..." : `${stats?.averageRating || 0}/5`,
+      label: "Average Rating",
+      description: `Based on ${formatNumber(stats?.totalReviews || 0)} verified reviews`,
+    },
+  ]
+
   return (
     <section className="py-16 mb-8 bg-muted/30 rounded-3xl">
       <div className="text-center mb-12">
@@ -39,7 +70,7 @@ export default function StatsSection() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => {
+        {statsConfig.map((stat, index) => {
           const IconComponent = stat.icon
           return (
             <Card key={index} className="text-center border-0 bg-transparent">

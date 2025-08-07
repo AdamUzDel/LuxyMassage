@@ -1,11 +1,11 @@
 "use client"
 
-import { useState/* , useEffect */ } from "react"
-import Link from "next/link"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Menu, MapPin, User } from 'lucide-react'
+import { Search, Menu, MapPin, User, Check, ChevronsUpDown } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSelector } from "@/components/language-selector"
@@ -14,8 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import UserMenu from "./user-menu"
-import { categories/* , genders */ } from "@/types/provider"
+import { categories } from "@/types/provider"
 import { countries } from "@/lib/countries"
+import { cn } from "@/lib/utils"
 
 export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -34,27 +35,23 @@ export default function Header() {
     const params = new URLSearchParams()
     
     if (searchQuery) params.set('query', searchQuery)
-    if (gender) params.set('gender', gender)
+    if (gender && gender !== 'all') params.set('gender', gender)
     if (selectedCountry) params.set('country', selectedCountry)
     if (location) params.set('city', location)
-    if (category) params.set('category', category)
-
+    if (category && category !== 'all') params.set('category', category)
+    
     router.push(`/categories?${params.toString()}`)
     setIsSearchOpen(false)
   }
 
-  const handleDesktopSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    const formData = new FormData(e.target as HTMLFormElement)
-    const query = formData.get('query') as string
-    
-    if (query) {
-      router.push(`/categories?query=${encodeURIComponent(query)}`)
-    }
-  }
-
   const handleCategoryClick = (categoryName: string) => {
     router.push(`/categories?category=${encodeURIComponent(categoryName)}`)
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
   }
 
   return (
@@ -73,7 +70,7 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
-            <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link href="/browse" className="text-sm font-medium hover:text-primary transition-colors">
               {t("browse")}
             </Link>
             <Link href="/categories" className="text-sm font-medium hover:text-primary transition-colors">
@@ -85,19 +82,25 @@ export default function Header() {
           </nav>
 
           {/* Desktop Search Bar */}
-          <form onSubmit={handleDesktopSearch} className="hidden lg:flex items-center space-x-2 flex-1 max-w-md mx-8">
+          <div className="hidden lg:flex items-center space-x-2 flex-1 max-w-md mx-8">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input 
-                name="query"
                 placeholder={t("searchPlaceholder")} 
-                className="pl-10" 
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
               />
             </div>
-            <Button type="submit" size="icon" variant="ghost">
+            <Button 
+              onClick={handleSearch}
+              size="sm"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            >
               <Search className="h-4 w-4" />
             </Button>
-          </form>
+          </div>
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-1 sm:space-x-2">
@@ -158,7 +161,7 @@ export default function Header() {
                 key={term}
                 variant="outline"
                 size="sm"
-                className="rounded-full whitespace-nowrap flex-shrink-0 bg-transparent"
+                className="rounded-full whitespace-nowrap flex-shrink-0 bg-transparent hover:bg-purple-50 hover:border-purple-200"
                 onClick={() => handleCategoryClick(term)}
               >
                 {term}
@@ -178,6 +181,7 @@ export default function Header() {
                   placeholder={t("searchServices")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   className="pl-10 h-12 text-base"
                 />
               </div>
@@ -196,69 +200,93 @@ export default function Header() {
                 </SelectContent>
               </Select>
 
-              {/* Country and City Row */}
-              <div className="grid grid-cols-2 gap-3">
-                <Popover open={countryOpen} onOpenChange={setCountryOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={countryOpen}
-                      className="h-12 justify-between text-base"
-                    >
+              {/* Country Selection */}
+              <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={countryOpen}
+                    className="w-full h-12 justify-between text-base"
+                  >
+                    <div className="flex items-center">
                       <MapPin className="mr-2 h-5 w-5" />
-                      {selectedCountry
-                        ? countries.find((country) => country.name === selectedCountry)?.name
-                        : "Select country..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Search country..." />
-                      <CommandEmpty>No country found.</CommandEmpty>
-                      <CommandGroup>
-                        {countries.map((country) => (
-                          <CommandItem
-                            key={country.code}
-                            value={country.name}
-                            onSelect={(currentValue) => {
-                              setSelectedCountry(currentValue === selectedCountry ? "" : currentValue)
-                              setCountryOpen(false)
-                            }}
-                          >
-                            {country.name}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                      <span className="truncate">
+                        {selectedCountry || "Select country..."}
+                      </span>
+                    </div>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search country..." className="h-9" />
+                    <CommandEmpty>No country found.</CommandEmpty>
+                    <CommandGroup className="max-h-64 overflow-auto">
+                      <CommandItem
+                        value="all"
+                        onSelect={() => {
+                          setSelectedCountry("")
+                          setCountryOpen(false)
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            !selectedCountry ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        All Countries
+                      </CommandItem>
+                      {countries.map((country) => (
+                        <CommandItem
+                          key={country.code}
+                          value={country.name.toLowerCase()}
+                          onSelect={() => {
+                            setSelectedCountry(country.name)
+                            setCountryOpen(false)
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedCountry === country.name ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {country.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
 
+              {/* Location and Category Row */}
+              <div className="grid grid-cols-2 gap-3">
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
                   <Input
-                    placeholder="City"
+                    placeholder={t("location")}
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
+                    onKeyPress={handleKeyPress}
                     className="pl-10 h-12 text-base"
                   />
                 </div>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="h-12 text-base">
+                    <SelectValue placeholder={t("category")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-
-              {/* Category Selection */}
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="h-12 text-base">
-                  <SelectValue placeholder={t("category")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
 
               {/* Search Button */}
               <Button 

@@ -11,10 +11,10 @@ export default function Footer() {
               <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
                 <span className="text-white font-bold text-sm">L</span>
               </div>
-              <span className="font-bold text-xl">LuxyMassage</span>
+              <span className="font-bold text-xl">LuxyDirectory</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Connecting you with verified professional escorts worldwide.
+              Connecting you with verified professional service providers worldwide.
             </p>
           </div>
 
@@ -22,14 +22,17 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold">Quick Links</h3>
             <div className="space-y-2 text-sm">
-              <Link href="/browse" className="block hover:text-primary transition-colors">
-                Browse Escorts
+              <Link href="/categories" className="block hover:text-primary transition-colors">
+                Browse Providers
               </Link>
               <Link href="/categories" className="block hover:text-primary transition-colors">
                 Categories
               </Link>
               <Link href="/register" className="block hover:text-primary transition-colors">
-                Join as Advertiser
+                Join as Provider
+              </Link>
+              <Link href="/about" className="block hover:text-primary transition-colors">
+                About Us
               </Link>
             </div>
           </div>
@@ -67,8 +70,19 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} LuxyMassage. All rights reserved.</p>
+        <div className="border-t mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center text-sm text-muted-foreground">
+          <p>&copy; {new Date().getFullYear()} LuxyDirectory. All rights reserved.</p>
+          <p>
+            Developed by{" "}
+            <Link 
+              href="https://bytebasetech.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline font-medium"
+            >
+              BytebaseTech
+            </Link>
+          </p>
         </div>
       </div>
     </footer>
