@@ -183,18 +183,18 @@ export default function HeroSection() {
           </div>
 
           {/* Mobile CTA */}
-          <div className="lg:hidden">
+          {/* <div className="lg:hidden">
             <p className="text-sm text-muted-foreground mb-4">Use the search in the header above to find providers</p>
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* Background Decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
         <div className="absolute top-40 left-40 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
+      </div> */}
     </section>
   )
 }
