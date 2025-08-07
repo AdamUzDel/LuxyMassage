@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,7 +19,7 @@ import { searchProviders, getUniqueCountries, getUniqueCities } from "@/lib/data
 import ProviderCard from "@/components/provider/provider-card"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export default function CategoriesPage() {
+export function CategoriesPage() {
   const searchParams = useSearchParams()
   const [providers, setProviders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -436,4 +436,12 @@ export default function CategoriesPage() {
       </div>
     </div>
   )
+}
+
+export default function CategoriesPageWrapper(){
+    return(
+        <Suspense>
+            <CategoriesPage />
+        </Suspense>
+    )
 }
