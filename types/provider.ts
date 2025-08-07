@@ -76,4 +76,20 @@ export const categories = [
   "Foot fetish",
   "French kissing",
   "GFE",
-]
+] as const
+
+export type Category = typeof categories[number]
+
+export const genders = ['male', 'female', 'other'] as const
+export type Gender = typeof genders[number]
+
+export interface SearchFilters {
+  query?: string
+  gender?: Gender | 'all'
+  country?: string
+  city?: string
+  category?: Category | 'all'
+  minRating?: number
+  verified?: boolean
+  sortBy?: 'rating' | 'newest' | 'price_low' | 'price_high'
+}

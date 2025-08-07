@@ -10,8 +10,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { X, Loader2 } from "lucide-react"
+import { X, Loader2 } from 'lucide-react'
 import { createClient } from "@/lib/supabase/client"
+import AvatarUpload from "@/components/ui/avatar-upload"
 
 const providerSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -39,6 +40,7 @@ export default function ProviderProfileEdit({
 }: ProviderProfileEditProps) {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState(userProfile?.avatar_url || null)
   const supabase = createClient()
 
   const {
@@ -95,6 +97,15 @@ export default function ProviderProfileEdit({
     }
   }
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -104,12 +115,22 @@ export default function ProviderProfileEdit({
         </Button>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {error && (
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
+
+          {/* Avatar Upload */}
+          <div className="flex justify-center">
+            <AvatarUpload
+              currentAvatar={avatarUrl}
+              onAvatarUpdate={setAvatarUrl}
+              fallbackText={getInitials(userProfile?.full_name || "Provider")}
+              size="lg"
+            />
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">

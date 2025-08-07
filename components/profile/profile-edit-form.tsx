@@ -9,8 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { X, Loader2 } from "lucide-react"
+import { X, Loader2 } from 'lucide-react'
 import { createClient } from "@/lib/supabase/client"
+import AvatarUpload from "@/components/ui/avatar-upload"
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -28,6 +29,7 @@ interface ProfileEditFormProps {
 export default function ProfileEditForm({ userProfile, onClose, onSave }: ProfileEditFormProps) {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState(userProfile?.avatar_url || null)
   const supabase = createClient()
 
   const {
@@ -66,6 +68,15 @@ export default function ProfileEditForm({ userProfile, onClose, onSave }: Profil
     }
   }
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -75,12 +86,22 @@ export default function ProfileEditForm({ userProfile, onClose, onSave }: Profil
         </Button>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {error && (
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
+
+          {/* Avatar Upload */}
+          <div className="flex justify-center">
+            <AvatarUpload
+              currentAvatar={avatarUrl}
+              onAvatarUpdate={setAvatarUrl}
+              fallbackText={getInitials(userProfile?.full_name || "User")}
+              size="lg"
+            />
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="fullName">Full Name</Label>

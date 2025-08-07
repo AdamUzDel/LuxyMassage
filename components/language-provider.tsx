@@ -22,6 +22,7 @@ const translations = {
     featuredProviders: "Featured Escorts",
     featuredProvidersSubtitle: "Discover our top-rated and verified professional escorts",
     viewAllProviders: "View All Escorts",
+    home: "Home",
     browse: "Browse",
     categories: "Categories",
     about: "About",

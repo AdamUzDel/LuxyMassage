@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client"
+import { updateProviderRating } from "./providers"
 
 export interface Review {
   id: string
@@ -70,12 +71,27 @@ export async function createReview(providerId: string, rating: number, comment: 
     throw error
   }
 
+  // Update provider's average rating
+  await updateProviderRating(providerId)
+
   return data as Review
 }
 
 export async function updateReview(reviewId: string, rating: number, comment: string) {
   const supabase = createClient()
   
+  // Get the provider ID first
+  const { data: reviewData, error: fetchError } = await supabase
+    .from('reviews')
+    .select('provider_id')
+    .eq('id', reviewId)
+    .single()
+
+  if (fetchError) {
+    console.error('Error fetching review:', fetchError)
+    throw fetchError
+  }
+
   const { data, error } = await supabase
     .from('reviews')
     .update({ rating, comment, updated_at: new Date().toISOString() })
@@ -94,12 +110,27 @@ export async function updateReview(reviewId: string, rating: number, comment: st
     throw error
   }
 
+  // Update provider's average rating
+  await updateProviderRating(reviewData.provider_id)
+
   return data as Review
 }
 
 export async function deleteReview(reviewId: string) {
   const supabase = createClient()
   
+  // Get the provider ID first
+  const { data: reviewData, error: fetchError } = await supabase
+    .from('reviews')
+    .select('provider_id')
+    .eq('id', reviewId)
+    .single()
+
+  if (fetchError) {
+    console.error('Error fetching review:', fetchError)
+    throw fetchError
+  }
+
   const { error } = await supabase
     .from('reviews')
     .delete()
@@ -109,6 +140,9 @@ export async function deleteReview(reviewId: string) {
     console.error('Error deleting review:', error)
     throw error
   }
+
+  // Update provider's average rating
+  await updateProviderRating(reviewData.provider_id)
 }
 
 export async function getUserReview(providerId: string) {
